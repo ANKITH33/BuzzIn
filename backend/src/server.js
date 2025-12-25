@@ -10,7 +10,9 @@ const app = express();
 const PORT=process.env.PORT || 5001;
 
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173",
+}));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
 app.use((req,res,next) => {
