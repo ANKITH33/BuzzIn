@@ -1,8 +1,10 @@
 import express from "express";
-import routes from "./routes/routes.js";
-import {connectDB} from "./config/db.js";
 import dotenv from "dotenv";
 import cors from "cors";
+
+import roomRoutes from "./routes/roomRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js"
+import {connectDB} from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 
 dotenv.config();//helps read the env file
@@ -21,15 +23,11 @@ app.use((req,res,next) => {
 })
 
 app.use(rateLimiter);
-
-app.use("/", routes);
-//app.use("/products", productroutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/quizzes", quizRoutes);
 
 connectDB().then(()=>{
     app.listen(PORT, () => {
         console.log("Server is running on port 5001");
     });
 })//programming practice we need to connect to db first
-
-
-//mongodb+srv://ankithkini43_db_user:SB9fL8h4AoAPFGmW@cluster0.ftm12yk.mongodb.net/?appName=Cluster0

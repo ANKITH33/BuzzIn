@@ -12,7 +12,7 @@ const Navbar = () => {
       <p className="mt-2 text-white-content/60 text-m">
         Fast, fun quiz rooms
       </p>
-</header>
+    </header>
 
 
   )

@@ -1,32 +1,27 @@
 import mongoose from "mongoose";
 
-//1-create a schema
-//2- model based off of that schema
-
 const teamSchema = new mongoose.Schema(
-    {
-        teamName: {
-            type: String,
-            required: true, 
-        },
-        score: {
-            type: Number,
-            default: 0,
-        },
-        active: {
-            type: Boolean,
-            required:true,
-            default: false,
-        },
-        quiz: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Quiz",
-            required: true,
-        }
+  {
+    teamName: {
+      type: String,
+      required: true,
     },
-    { timestamps: true} //createdAt, UpdatedAt
-)
 
-const team = mongoose.model("Team", teamSchema);
+    totalScore: {
+      type: Number,
+      default: 0,
+    },
 
-export default team;
+    quiz: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quiz", //This ObjectId refers to a document in the Quiz collection
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+// team names must be unique per quiz
+teamSchema.index({ quiz: 1, teamName: 1 }, { unique: true });
+
+export default mongoose.model("Team", teamSchema);
