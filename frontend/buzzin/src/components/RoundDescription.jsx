@@ -3,11 +3,12 @@ import ClassicBuzzerConfig from "./ClassicBuzzerConfig";
 import BuzzerWithChallengesConfig from "./BuzzerWithChallengesConfig";
 import DifferentialScoringConfig from "./DifferentialScoringConfig";
 
-const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidity }) => {
+const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidity, setRoundConfigs }) => {
   const [roundType, setRoundType] = useState(null);
   const isOpen = openRound === roundIndex;
   const containerRef = useRef(null);
   const [configValid, setConfigValid] =useState(false);
+  const [configData, setConfigData] = useState(null);//null because {} means empty and null means round hasnt been chosen yet
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -32,6 +33,8 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
   const handleSelect = (type) => {
     setRoundType(type);
     setOpenRound(null);
+    setConfigData(null);
+    setConfigValid(false);
   };
 
     useEffect(() => {
@@ -40,6 +43,28 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
             [roundIndex]: roundType !== null && configValid,
         }));
     }, [roundType, configValid]);
+
+    useEffect(() => {
+        if(!roundType || !configValid || !configData){
+            return;
+        }
+
+        setRoundConfigs( prev => ({
+            ...prev,
+            [roundIndex]: {
+                order: roundIndex,
+                type:
+                roundType === "classic"
+                    ? "classic_buzzer"
+                    : roundType === "challenge"
+                    ? "buzzer_with_challenges"
+                    : "differential_scoring",
+                questionsCount: configData.questionsCount,
+                scoring: configData.scoring
+            }
+        })
+        );
+    },[roundType,configData,configValid])
   
 
   return (
@@ -87,9 +112,9 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
             </div>
         </div>
 
-      {roundType === "classic" && <ClassicBuzzerConfig onValidityChange={setConfigValid}/>}
-      {roundType === "challenge" && <BuzzerWithChallengesConfig onValidityChange={setConfigValid} />}
-      {roundType === "differential" && <DifferentialScoringConfig onValidityChange={setConfigValid}/>}
+      {roundType === "classic" && <ClassicBuzzerConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
+      {roundType === "challenge" && (<p className="text-red-400 mt-3"> Buzzer with Challenges not implemented yet</p>)}
+      {roundType === "differential" && <DifferentialScoringConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {/* Add other configs later */}
     </div>
   );

@@ -1,6 +1,7 @@
 import React from 'react'
 import {Route, Routes} from "react-router-dom";
 import HomePage from './pages/HomePage';
+import HostPage from './pages/HostPage';
 import CreateQuiz from './pages/CreateQuiz';
 import UserPage from './pages/UserPage';
 import toast from "react-hot-toast";
@@ -11,7 +12,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage/>}/>
         <Route path="/create/:roomCode" element={<CreateQuiz/>}/>
-        <Route path="/join" element={<UserPage/>}/>
+        <Route path="/join/:roomCode" element={<UserPage/>}/>
+        <Route path="/host/:roomCode" element={<HostPage/>}/>
 
       </Routes>
     </div>

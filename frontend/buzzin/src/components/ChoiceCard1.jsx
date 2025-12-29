@@ -3,6 +3,7 @@ import {Link} from 'react-router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 const ChoiceCard = () => {
     const [roomCode,setRoomCode]=useState("");
@@ -10,17 +11,33 @@ const ChoiceCard = () => {
 
     const navigate = useNavigate();
 
-    const handleSubmit = () =>{
-        if(!teamName){
-            toast.error("Enter Team Name");
+    const handleSubmit = async () => {
+        if (!teamName) {
+            toast.error("Enter team name");
             return;
         }
-        else if(!roomCode){
-            toast.error("Invalid Room Code");
+
+        if (!roomCode) {
+            toast.error("Enter room code");
             return;
         }
-        navigate("/join");
-    }
+
+        try {
+            await axios.post("http://localhost:5001/api/teams/join",{roomCode,teamName});
+            
+            navigate(`/join/${roomCode}`,{ replace: true });
+        } catch (err) {
+            if (err.response?.status === 404) {
+                toast.error("Room does not exist");
+            } else if(err.response?.status === 409){
+                toast.error("Team name already taken");
+            }
+            else {
+                toast.error("Failed to join room");
+            }
+        }
+    };
+
   return (
 
     <div className="bg-blue-900 p-8 rounded-2xl w-[420px]">

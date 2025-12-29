@@ -21,7 +21,7 @@ const CreateQuiz = () => {
       {isRateLimited && <RateLimitedUI/>}
       <InfoBoxCreate quizTitle={quizTitle} roomCode={roomCode}/>
 
-      <QuizRounds/>
+      <QuizRounds roomCode={roomCode} quizTitle={quizTitle}/>
         
     </div>
   )

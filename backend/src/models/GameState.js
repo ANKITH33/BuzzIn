@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const gameStateSchema = new mongoose.Schema(
   {
     room: {
@@ -57,3 +59,5 @@ const gameStateSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+export default mongoose.model("GameState",gameStateSchema);

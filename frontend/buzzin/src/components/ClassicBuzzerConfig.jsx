@@ -1,7 +1,7 @@
   import { useState } from "react";
   import { useEffect } from "react";
 
-  const ClassicBuzzerConfig = ({onValidityChange}) => {
+  const ClassicBuzzerConfig = ({onValidityChange,onConfigChange}) => {
     const [correct, setCorrect] = useState("");
     const [correctError, setCorrectError] = useState("");
 
@@ -122,6 +122,18 @@
     useEffect(() =>{
       onValidityChange(valid);
     },[valid]);
+
+    useEffect(() => {
+      if(valid){
+        onConfigChange({
+          questionsCount: Number(question),
+          scoring: {
+            correct:Number(correct),
+            wrong: Number(incorrect),
+          }
+        })
+      }
+    },[valid,correct,incorrect,question,onConfigChange]);
     
     return (
       <div className="flex flex-col md:flex-row gap-4 mt-3 mb-2">

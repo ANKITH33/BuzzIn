@@ -36,6 +36,11 @@ const roundSchema = new mongoose.Schema({
     // differential scoring
     scaler: Number,
   },
+
+  questionsCount:{
+    type: Number,
+    required: true,
+  }
 });
 
 export default mongoose.model("Round", roundSchema);

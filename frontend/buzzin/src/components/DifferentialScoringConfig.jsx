@@ -1,7 +1,7 @@
   import { useState } from "react";
   import { useEffect } from "react";
 
-  const DifferentialScoringConfig = ({onValidityChange}) => {
+  const DifferentialScoringConfig = ({onValidityChange,onConfigChange}) => {
     const [scalingFactor, setScalingFactor] = useState("");
     const [scalingError, setScalingError] = useState("");
 
@@ -84,6 +84,16 @@
     useEffect(() =>{
       onValidityChange(valid);
     },[valid]);
+
+    useEffect(() => {
+      if (!valid) return;
+      onConfigChange({
+        questionsCount: Number(question),
+        scoring: {
+          scaler: Number(scalingFactor),
+        }
+      });
+    }, [valid, scalingFactor, question, onConfigChange]);
     
     return (
       <div className="flex flex-col md:flex-row gap-4 mt-3 mb-2">

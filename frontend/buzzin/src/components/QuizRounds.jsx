@@ -1,12 +1,14 @@
 import React, { useState, useEffect} from "react";
 import RoundDescription from "./RoundDescription";
 import toast from 'react-hot-toast';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
+import axios from "axios";
 
-const QuizRounds = () => {
+const QuizRounds = ({roomCode, quizTitle}) => {
   const [rounds, setRounds] = useState("0");
   const [roundValidity, setRoundValidity] = useState({});
-  const [openRound, setOpenRound] = useState(null); // string state
+  const [openRound, setOpenRound] = useState(null);
+  const [roundConfigs, setRoundConfigs] = useState ({}); // string state
 
   const handleChange = (e) => {
     if (/^\d*$/.test(e.target.value)) {
@@ -39,14 +41,38 @@ const QuizRounds = () => {
         console.log("Create Quiz called");
 
         try{
+            const payload={
+                title: quizTitle,
+                roomCode, //as both names are same
+                rounds: Object.values(roundConfigs)
+            }
+
+            await axios.post("http://localhost:5001/api/quizzes",payload);
             console.log("Quiz created");
-            navigate(`/host/${data.code}`, {state: {quiztitle},});
+            navigate(`/host/${roomCode}`,{ replace: true });
+
         } catch(error){
             console.log("Axios error: ",error);
-            toast.error("Failed to create quiz");
+            toast.error("Failed to create quiz (backend)");
         }
 
     }
+    useEffect(() => {
+        async function checkRoom() {
+            try {
+                const res = await axios.get(`/api/rooms/${roomCode}`);
+
+                if (res.data.quiz) {
+                    navigate(`/host/${roomCode}`, { replace: true });
+                }
+            } catch (err) {
+                console.error("Room check failed", err);
+            }
+        }
+
+        checkRoom();
+    }, [roomCode, navigate]);
+
     
   return (
     <>
@@ -88,7 +114,7 @@ const QuizRounds = () => {
             </div>
 
             <div>
-                <button className="btn btn-warning font-semibold px-8" disabled={roundsNumber === 0 || hasInvalidRound} onClick={createQuiz} >
+                <button className="btn btn-warning font-semibold px-8" disabled={roundsNumber === 0 || hasInvalidRound } onClick={createQuiz} >
                     Create
                 </button>
             </div>
@@ -103,6 +129,7 @@ const QuizRounds = () => {
             openRound={openRound}
             setOpenRound={setOpenRound}
             setRoundValidity={setRoundValidity}
+            setRoundConfigs={setRoundConfigs}
         />
     ))}
     </>

@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import roomRoutes from "./routes/roomRoutes.js";
-import quizRoutes from "./routes/quizRoutes.js"
+import quizRoutes from "./routes/quizRoutes.js";
+import teamRoutes from "./routes/teamRoutes.js";
 import {connectDB} from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 
@@ -25,6 +26,7 @@ app.use((req,res,next) => {
 app.use(rateLimiter);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/quizzes", quizRoutes);
+app.use("/api/teams", teamRoutes);
 
 connectDB().then(()=>{
     app.listen(PORT, () => {
