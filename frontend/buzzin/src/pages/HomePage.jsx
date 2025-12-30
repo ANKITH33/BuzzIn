@@ -2,6 +2,8 @@ import React from 'react'
 import {useState} from "react";
 import axios from "axios";
 import { useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
+
 
 
 import Navbar from '../components/Navbar'
@@ -13,6 +15,7 @@ const HomePage = () => {
     const [isRateLimited, setIsRateLimited] = useState(false);
     const [teams,setTeams] = useState([]);
     const [loading,setLoading] = useState(true);
+    const navigate =useNavigate();
 
     // useEffect(() =>{
     //     const fetchTeams= async() =>{
@@ -26,6 +29,12 @@ const HomePage = () => {
 
     //     fetchTeams();
     // },[]);
+    useEffect(() => {
+        const roomCode = localStorage.getItem("hostRoomCode");
+        if (roomCode) {
+            navigate(`/host/${roomCode}`, { replace: true });
+        }
+    }, [navigate]);
     return (
         <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-700 space-y-8">
             <Navbar/>

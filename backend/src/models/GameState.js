@@ -39,6 +39,11 @@ const gameStateSchema = new mongoose.Schema(
       }
     ],
 
+    buzzersLocked: {
+      type: Boolean,
+      default: false,
+    },
+
     submittedAnswers: [
       {
         team: {

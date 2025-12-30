@@ -1,16 +1,20 @@
 import { useState } from "react";
 
-const BUzzer = () => {
-  const [pressed, setPressed] = useState(false);
+const Buzzer = ({answer,pressed,setPressed,buzzerLocked}) => {
+  const handleSubmit =() =>{
+    console.log("Submitted Answer is:", answer);
+    setPressed(true);
+  }
 
   return (
-    <div className="m-6 flex justify-center">
+    <div className=" flex justify-center">
       <button
-        onClick={() => setPressed(true)}
+        onClick={handleSubmit}
+        disabled={buzzerLocked}
         className={`
-          ${pressed ? "bg-warning" : "bg-error"}
-          ${pressed ? "text-accent-content" : "text-white"}
-          text-white
+          ${buzzerLocked ? "bg-warning" : pressed ? "bg-warning" : "bg-error"}
+          ${buzzerLocked ? "text-accent-content" : pressed ? "text-accent-content" : "text-white"}
+          ${buzzerLocked ? "text-accent-content" : pressed ? "text-accent-content" : "text-white"}
           text-4xl
           font-bold
           rounded-xl
@@ -21,10 +25,10 @@ const BUzzer = () => {
           active:scale-95
         `}
       >
-        {pressed ? "Buzzed!" : "Click to buzz!"}
+        {buzzerLocked ? "Buzzer Locked" : pressed ? "Buzzed!" : "Click to buzz!"}
       </button>
     </div>
   );
 };
 
-export default BUzzer;
+export default Buzzer;

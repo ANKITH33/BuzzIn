@@ -1,9 +1,7 @@
 import React from 'react'
 
-const InfoBoxUser = () => {
-  const quizTitle = "General Knowledge";
-  const teamName = "Alpha";
-  const playerCount = 4;
+const InfoBoxUser = ({quizTitle, teamName, players, roomCode,roundNumber, questionNumber,roundType}) => {
+
 
   return (
     <div className="bg-blue-900 text-white rounded-xl mx-6 mt-6 p-2">
@@ -30,7 +28,31 @@ const InfoBoxUser = () => {
           </p>
 
           <p className='text-base'>
-            <span className="opacity-60">#Players:</span> {playerCount}
+            <span className="opacity-60">#Players:</span> {players}
+          </p>
+
+          <p className='text-base'>
+            <span className="opacity-60">Room Code:</span> {roomCode}
+          </p>
+
+        </div>
+      </div>
+
+      <hr className="border-white/70 mx-6 " />
+
+      <div className="px-6 ">
+        <div className="flex flex-col gap-1 md:flex-row md:justify-between text-sm md:text-lg ">
+
+          <p className='text-base py-2'>
+            <span className="opacity-60">Round:</span> {roundNumber}
+          </p>
+
+          <p className='text-base py-2'>
+            <span className="opacity-60">Question:</span> {questionNumber}
+          </p>
+
+          <p className='text-base py-2'>
+            <span className="opacity-60">Round Type:</span> {roundType}
           </p>
 
         </div>

@@ -62,6 +62,9 @@ export async function createQuiz(req, res) {
 
     await session.commitTransaction();
     session.endSession();
+    
+    const io = req.app.get("io");
+    io.to(roomCode).emit("quiz-created");
 
     return res.status(201).json({
       quizId: quiz[0]._id,

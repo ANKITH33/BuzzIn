@@ -25,7 +25,7 @@ const ChoiceCard = () => {
         try {
             await axios.post("http://localhost:5001/api/teams/join",{roomCode,teamName});
             
-            navigate(`/join/${roomCode}`,{ replace: true });
+            navigate(`/join/${roomCode}`,{ state: teamName, replace: true });
         } catch (err) {
             if (err.response?.status === 404) {
                 toast.error("Room does not exist");

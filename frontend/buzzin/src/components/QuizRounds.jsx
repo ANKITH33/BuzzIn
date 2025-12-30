@@ -63,6 +63,7 @@ const QuizRounds = ({roomCode, quizTitle}) => {
                 const res = await axios.get(`/api/rooms/${roomCode}`);
 
                 if (res.data.quiz) {
+                    localStorage.setItem("hostRoomCode", roomCode);
                     navigate(`/host/${roomCode}`, { replace: true });
                 }
             } catch (err) {

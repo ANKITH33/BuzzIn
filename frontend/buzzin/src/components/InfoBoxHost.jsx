@@ -1,8 +1,14 @@
 import React from 'react';
 import {useState} from 'react';
+import axios from "axios";
 
-const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumber, players, onNextQuestion}) => {
-
+const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumber, players, onNextQuestion , buzzerLocked, setBuzzerLocked}) => {
+  const handleChange = async (e) =>{
+    const locked = e.target.checked;
+    setBuzzerLocked(locked);
+    await axios.post(`http://localhost:5001/api/rooms/${roomCode}/buzzers`,{locked});
+    return;
+  }
   return (
     <div className="bg-blue-900 text-white rounded-xl mx-6 mt-6 p-2">
 
@@ -53,12 +59,12 @@ const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumbe
             <span className="opacity-60">Round Type:</span> {roundType}
           </p>
 
-            <div className="form-control">
-                <label className="cursor-pointer label gap-2">
-                    <span className="text-sm opacity-80">Lock Buzzers?</span>
-                    <input type="checkbox" defaultChecked className="checkbox checkbox-error" />
-                </label>
-            </div>
+          <div className="form-control">
+              <label className="cursor-pointer label gap-2">
+                  <span className="text-sm opacity-80">Lock Buzzers?</span>
+                  <input type="checkbox" checked={buzzerLocked} className="checkbox checkbox-error" onChange={handleChange}/>
+              </label>
+          </div>
 
         </div>
       </div>
