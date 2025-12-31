@@ -2,6 +2,7 @@ import React, { useState, useEffect,useRef } from 'react';
 import axios from "axios";
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { io } from "socket.io-client";
+import toast from 'react-hot-toast';
 
 import Navbar2 from '../components/Navbar2';
 import RateLimitedUI from '../components/RateLimitedUI';
@@ -15,15 +16,15 @@ const UserPage = () => {
   const [quizTitle, setQuizTitle] = useState("");
   const [players, setPlayers] = useState(0);
   const [roundNumber,setRoundNumber] = useState(1);
-  const[questionNumber,setQuestionNumber]=useState(1);
-  const[roundType,setRoundType]=useState("");
+  const [questionNumber,setQuestionNumber]=useState(1);
+  const [roundType,setRoundType]=useState("");
 
   const { roomCode } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const[answer,setAnswer] = useState("");
-  const[pressed,setPressed] = useState(false);
+  const [answer,setAnswer] = useState("");
+  const [pressed,setPressed] = useState(false);
 
   const teamName = location.state || localStorage.getItem("teamName");
 
@@ -31,6 +32,28 @@ const UserPage = () => {
   const socketRef = useRef(null);
 
   const [buzzerLocked,setBuzzersLocked]= useState(false);
+
+
+
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  const handleSubmit = async () => {
+    if (pressed) return;
+    if (buzzerLocked) return;
+
+    try {
+      await axios.post(
+        `http://localhost:5001/api/rooms/${roomCode}/update`,
+        { answer, teamName}
+      );
+      setPressed(true);
+    } catch (err) {
+      console.log(err.response?.data);
+      toast.error(err.response?.data?.error || "Answer not sent");
+    }
+  }
+
+
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -62,6 +85,10 @@ const UserPage = () => {
     };
 
     socket.on("players-updated", onPlayersUpdated);
+    socket.on("buzzer-cleared", () => {
+      setPressed(false);
+      setAnswer("");
+    })
 
     return () => {
       socket.off("players-updated", onPlayersUpdated);
@@ -69,12 +96,21 @@ const UserPage = () => {
     };
   }, [roomCode]);
 
+
+
+
+
+
   useEffect(() => {
     async function fetchRoomOnce() {
       try {
         const res = await axios.get(`http://localhost:5001/api/rooms/${roomCode}`);
         setQuizTitle(res.data.quiz?.title || "");
         setPlayers(res.data.playerCount || 0);
+
+        const buzzRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzz-status`,{params: {teamName} });
+        setPressed(buzzRes.data.alreadyBuzzed);
+        if(buzzRes.data.alreadyAnswered){setAnswer(buzzRes.data.submittedAnswer)};
 
         const lb = await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
         setLeaderboard(lb.data);
@@ -113,7 +149,7 @@ const UserPage = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-start px-20 pt-2 gap-6">
         <div className="md:w-1/2 w-full">
-          <Buzzer answer={answer} pressed={pressed} setPressed={setPressed} buzzerLocked={buzzerLocked}/>
+          <Buzzer onBuzz={handleSubmit} pressed={pressed} buzzerLocked={buzzerLocked}/>
         </div>
         <div className="md:w-1/2 w-full">
           <Leaderboard teams={leaderboard} />

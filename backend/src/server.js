@@ -32,19 +32,19 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/teams", teamRoutes);
 
 connectDB().then(()=>{
-    const server = http.createServer(app);
+    const server = http.createServer(app);//creates a raw HTTP server
 
-    const io = new Server(server, {
+    const io = new Server(server, { //io is Socket.IO instance
         cors: { origin: "http://localhost:5173" }
-    });
+    });//Socket.IO attaches itself to the existing HTTP server and listens for socket connections coming to that server.
 
-    io.on("connection", (socket) => {
+    io.on("connection", (socket) => { //Whenever any browser connects using Socket.IO, run this function
         socket.on("join-room", (roomCode) => {
-            socket.join(roomCode);
+            socket.join(roomCode);//Adds THIS socket to an internal group named roomCode, all users in the room share a connection
         });
     });
 
-    app.set("io", io);
+    app.set("io", io);//Store this value inside the Express app under this key.
 
     server.listen(PORT, () => {
         console.log("Server running on port 5001");

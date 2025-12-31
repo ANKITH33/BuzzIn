@@ -24,25 +24,29 @@ const HostPage = () => {
   const[roundType,setRoundType]=useState("");
 
   const [leaderboard, setLeaderboard] = useState([]);
-  const socketRef = useRef(null);
+  const socketRef = useRef(null);//Holds one persistent socket instance that survives re-renders
+
+  const [responses,setResponses]=useState([]);
+  const [buzzedTeams, setBuzzedTeams]= useState([]);
 
   const [buzzerLocked, setBuzzerLocked] = useState(false);
 
   useEffect(() => {
-    if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5001");
+    if (!socketRef.current) {//Creates the socket only the first time, doesnt create when roomCode changes
+      socketRef.current = io("http://localhost:5001"); //Opens a socket connection to backend,Triggers backend io.on("connection"),Creates a socket object on backend
     }
-    const socket = socketRef.current;
+    const socket = socketRef.current;//use existing socket
 
     socket.emit("join-room", roomCode);
 
     socket.on("connect", () => {
       socket.emit("join-room", roomCode);
-    });
+    });//incase socket connection is lost and it retries (Socket.io detects this and enters reconnect mode)
+    //When a socket disconnects (including laptop sleep), it is removed from the room on the backend.
 
     socket.on("buzzers-locked", (locked) => {
       setBuzzerLocked(locked);
-    });
+    });//listens for emit, which comes from backend
 
 
     const onPlayersUpdated = async () => {
@@ -57,15 +61,23 @@ const HostPage = () => {
       setLeaderboard(lb.data);
     };
 
-    socket.on("players-updated", onPlayersUpdated);
+    socket.on("players-updated", onPlayersUpdated);//listens for emit from backend
+
+    const onResponseUpdated = async () => {
+      const responsesData =  await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzerboard`);
+      setResponses(responsesData.data.submittedAnswers);
+      setBuzzedTeams(responsesData.data.buzzedTeams);
+    }
+
+    socket.on("response-updated", onResponseUpdated);
     
 
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked");
-      
+      socket.off("responses-updated");
     };
-  }, [roomCode]);
+  }, [roomCode]);//runs on mount and if roomCode changes
 
   useEffect(() => {
     async function fetchRoomOnce() {
@@ -85,6 +97,10 @@ const HostPage = () => {
 
         const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
         setBuzzerLocked(buzzerRes.data.locked);
+
+        const responsesData =  await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzerboard`);
+        setResponses(responsesData.data.submittedAnswers);
+        setBuzzedTeams(responsesData.data.buzzedTeams);
 
         setLoading(false);
 
@@ -114,6 +130,13 @@ const HostPage = () => {
     setQuestionNumber(q => q + 1);
   };
 
+  const handleClearAll = async () => {
+    const clearAll = await axios.post(`http://localhost:5001/api/rooms/${roomCode}/clearbuzzerboard`);
+    setResponses(clearAll.data.submittedAnswers);
+    setBuzzedTeams(clearAll.data.buzzedTeams);
+
+  }
+
   return (
     <div className="h-screen overflow-y-auto  bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
         <Navbar2 />
@@ -136,7 +159,7 @@ const HostPage = () => {
               <Leaderboard teams={leaderboard}/>
             </div>
             <div className="md:w-1/2">
-              <BuzzerBoard />
+              <BuzzerBoard responses={responses} handleClearAll={handleClearAll}/>
             </div>
           </div>
     </div>
