@@ -30,6 +30,7 @@ const HostPage = () => {
   const [buzzedTeams, setBuzzedTeams]= useState([]);
 
   const [buzzerLocked, setBuzzerLocked] = useState(false);
+  
 
   useEffect(() => {
     if (!socketRef.current) {//Creates the socket only the first time, doesnt create when roomCode changes
@@ -134,7 +135,6 @@ const HostPage = () => {
     const clearAll = await axios.post(`http://localhost:5001/api/rooms/${roomCode}/clearbuzzerboard`);
     setResponses(clearAll.data.submittedAnswers);
     setBuzzedTeams(clearAll.data.buzzedTeams);
-
   }
 
   return (
@@ -159,7 +159,7 @@ const HostPage = () => {
               <Leaderboard teams={leaderboard}/>
             </div>
             <div className="md:w-1/2">
-              <BuzzerBoard responses={responses} handleClearAll={handleClearAll}/>
+              <BuzzerBoard responses={responses} handleClearAll={handleClearAll} roundType={roundType} roomCode={roomCode}/>
             </div>
           </div>
     </div>

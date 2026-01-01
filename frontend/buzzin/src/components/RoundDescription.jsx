@@ -113,7 +113,7 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
         </div>
 
       {roundType === "classic" && <ClassicBuzzerConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
-      {roundType === "challenge" && (<p className="text-red-400 mt-3"> Buzzer with Challenges not implemented yet</p>)}
+      {roundType === "challenge" && <BuzzerWithChallengesConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {roundType === "differential" && <DifferentialScoringConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {/* Add other configs later */}
     </div>

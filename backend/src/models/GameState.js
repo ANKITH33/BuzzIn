@@ -44,6 +44,23 @@ const gameStateSchema = new mongoose.Schema(
       default: false,
     },
 
+    evaluations: {
+      type: Map,
+      of: {
+        type: String,
+        enum: [
+          "CORRECT",
+          "WRONG",
+          "CHALLENGE_CORRECT",
+          "CHALLENGE_WRONG",
+          "CONCUR_PENALTY",
+          "NO_PENALTY",
+        ],
+      },
+      default: {},
+    },
+
+
     submittedAnswers: [
       {
         team: {
@@ -61,6 +78,7 @@ const gameStateSchema = new mongoose.Schema(
         }
       }
     ]
+    
   },
   { timestamps: true }
 );

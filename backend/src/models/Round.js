@@ -14,7 +14,7 @@ const roundSchema = new mongoose.Schema({
       "buzzer_with_challenges",
       "differential_scoring",
     ],
-    required: true,
+    required: true, 
   },
 
   order: {
@@ -25,16 +25,16 @@ const roundSchema = new mongoose.Schema({
   // round-specific scoring rules
   scoring: {
     // classic buzzer
-    correct: Number,
-    wrong: Number,
+    correct: { type: Number, default: 0 },
+    wrong: { type: Number, default: 0 },
 
     // buzzer with challenges
-    challengeCorrect: Number,
-    challengeWrong: Number,
-    concurPenalty: Number,
+    challengeCorrect: { type: Number, default: 0 },
+    challengeWrong: { type: Number, default: 0 },
+    concurPenalty: { type: Number, default: 0 },
 
     // differential scoring
-    scaler: Number,
+    scaler: { type: Number, default: 0 },
   },
 
   questionsCount:{

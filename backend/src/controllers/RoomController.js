@@ -248,7 +248,8 @@ export async function clearBuzzers (req,res) {
     const gameState = await GameState.findOneAndUpdate(
         {room : room._id},
         {buzzedTeams: [],
-        submittedAnswers: []},
+        submittedAnswers: [],
+        evaluations: {},},
         {new:true}
     )
     if (!gameState) {
@@ -259,4 +260,58 @@ export async function clearBuzzers (req,res) {
     io.to(roomCode).emit("buzzer-cleared");
 
     res.status(200).json({buzzedTeams:[],submittedAnswers:[]});
+}
+
+export async function updateEvaluation(req, res) {
+    const {roomCode} = req.params;
+    const {teamName,evaluation} = req.body;
+
+    const allowed = [
+        "CORRECT",
+        "WRONG",
+        "CHALLENGE_CORRECT",
+        "CHALLENGE_WRONG",
+        "CONCUR_PENALTY",
+        "NO_PENALTY",
+    ];
+
+    if (!allowed.includes(evaluation)) {
+        return res.status(400).json({error:"Invalid evaluation type"});
+    }
+
+    const room = await Room.findOne({ code: roomCode });
+    if(!room){
+        return res.status(404).json({error:"Room not found"});
+    }
+
+    if(!room.quiz){
+        return res.status(400).json({error:"Quiz not started yet"});
+    }
+
+    const team = await Team.findOne({quiz: room.quiz,teamName});
+    if(!team){
+        return res.status(404).json({error:"Team not found"});
+    }
+
+    const gameState = await GameState.findOne({ room: room._id });
+    if(!gameState){
+        return res.status(404).json({error:"GameState not found"});
+    }
+
+
+    const hasAnswered = gameState.submittedAnswers.some(a => a.team.equals(team._id));
+    if(!hasAnswered){
+        return res.status(400).json({error:"Team has not submitted an answer"});
+    }
+
+    gameState.evaluations.set(team._id.toString(), evaluation);
+    await gameState.save();
+
+    const io = req.app.get("io");
+    io.to(roomCode).emit("evaluation-updated", {
+        teamName,
+        evaluation,
+    });
+
+    return res.status(200).json({success:true});
 }
