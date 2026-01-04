@@ -215,7 +215,7 @@ const HostPage = () => {
 
   return (
     <div className="h-screen overflow-y-auto bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
-        <Navbar2 />
+        <Navbar2 quizEnded={quizEnded}/>
     
         {isRateLimited && <RateLimitedUI/>}
         <InfoBoxHost 
@@ -240,6 +240,7 @@ const HostPage = () => {
               </p>
               
               <Leaderboard teams={leaderboard} />
+              <button className='btn btn-secondary rounded-xl text-xl mt-12' onClick={() =>{navigate("/")}}>🏠︎ Continue to Home</button>
             </div>
           )}
           

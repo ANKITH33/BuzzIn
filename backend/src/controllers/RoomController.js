@@ -4,6 +4,41 @@ import Team from '../models/Team.js';
 import Round from '../models/Round.js';
 import GameState from '../models/GameState.js';
 
+const roundValidEvaluations = {
+  classic_buzzer: [
+    "CORRECT",
+    "WRONG",
+  ],
+
+  buzzer_with_challenges: [
+    "CORRECT",
+    "WRONG",
+    "CHALLENGE_CORRECT",
+    "CHALLENGE_WRONG",
+    "CONCUR_PENALTY",
+    "NO_PENALTY",
+  ],
+
+  differential_scoring: [
+    "CORRECT",
+    "WRONG",
+  ],
+
+  pounce_bounce: [
+    "RISK_CORRECT",
+    "RISK_WRONG",
+    "SAFE_CORRECT",
+    "SAFE_WRONG",
+  ],
+
+  hit_hold: [
+    "RISK_CORRECT",
+    "RISK_WRONG",
+    "SAFE_CORRECT",
+    "SAFE_WRONG",
+  ],
+};
+
 export async function CreateRoom (req,res) {
     let room=null;
     let attempts=0;
@@ -272,18 +307,7 @@ export async function updateEvaluation(req, res) {
     const {roomCode} = req.params;
     const {teamName,evaluation} = req.body;
 
-    const allowed = [
-        "CORRECT",
-        "WRONG",
-        "CHALLENGE_CORRECT",
-        "CHALLENGE_WRONG",
-        "CONCUR_PENALTY",
-        "NO_PENALTY",
-    ];
-
-    if (!allowed.includes(evaluation)) {
-        return res.status(400).json({error:"Invalid evaluation type"});
-    }
+    
 
     const room = await Room.findOne({ code: roomCode });
     if(!room){
@@ -307,6 +331,19 @@ export async function updateEvaluation(req, res) {
         return res.status(409).json({error: "Question already processed",});
     }
 
+    const round = await Round.findOne({quiz: room.quiz,order: gameState.currentRoundIndex,});
+    if(!round){
+        return res.status(404).json({ error: "Round not found" });
+    }
+
+    const allowedForRound = roundValidEvaluations[round.type];
+    if(!allowedForRound){
+        return res.status(400).json({ error: "Unsupported round type" });
+    }
+
+    if (!allowedForRound.includes(evaluation)) {
+        return res.status(400).json({error: `Invalid evaluation for ${round.type}`,});
+    }
 
     const hasAnswered = gameState.submittedAnswers.some(a => a.team.equals(team._id));
     if(!hasAnswered){
@@ -393,19 +430,14 @@ export async function updateScores (req,res){
             }
 
             if(roundType==="classic_buzzer"){
-                if (evaluation === "CHALLENGE_CORRECT" ||
-                    evaluation === "CHALLENGE_WRONG" ||
-                    evaluation === "NO_PENALTY" ||
-                    evaluation === "CONCUR_PENALTY"
-                ){
-                    throw new Error("Invalid evaluation");
-                }
-
                 if(evaluation === "CORRECT"){
                     team.totalScore += round.scoring.correct;
                 }
-                else{
+                else if(evaluation === "WRONG"){
                     team.totalScore += round.scoring.wrong;
+                }
+                else{
+                    throw new Error("Invalid evaluation");
                 }
             }
 
@@ -425,30 +457,64 @@ export async function updateScores (req,res){
                 else if(evaluation === "CONCUR_PENALTY"){
                     team.totalScore += round.scoring.concurPenalty;
                 }
-                else{
+                else if(evaluation === "WRONG"){
                     team.totalScore += round.scoring.wrong;
+                }
+                else{
+                    throw new Error("Invalid evaluation");
                 }
             }
 
             else if(roundType === "differential_scoring"){
-                if(evaluation === "CHALLENGE_CORRECT" ||
-                    evaluation === "CHALLENGE_WRONG" ||
-                    evaluation === "NO_PENALTY" ||
-                    evaluation === "CONCUR_PENALTY"
-                ){
-                    throw new Error("Invalid evaluation");
-                }
-
                 if (evaluation === "CORRECT") {
                     team.totalScore+=round.scoring.scaler*(totalTeams - correctTeams);
                 }
-                else{
+                else if(evaluation === "WRONG"){
                     if (wrongTeams >= correctTeams) {
                         team.totalScore -=round.scoring.scaler;
                     }
                     else{
                         team.totalScore -=round.scoring.scaler*(correctTeams - wrongTeams);
                     }
+                }
+                else{
+                    throw new Error("Invalid evaluation");
+                }
+            }
+
+            else if(roundType === "pounce_bounce"){
+                if (evaluation === "RISK_CORRECT") {
+                    team.totalScore+=round.scoring.riskCorrect;
+                }
+                else if(evaluation === "RISK_WRONG"){
+                    team.totalScore+=round.scoring.riskWrong;
+                }
+                else if(evaluation === "SAFE_CORRECT"){
+                    team.totalScore+=round.scoring.safeCorrect;
+                }
+                else if(evaluation === "SAFE_WRONG"){
+                    team.totalScore+=round.scoring.safeWrong;
+                }
+                else{
+                    throw new Error("Invalid evalaution");
+                }
+            }
+
+            else if(roundType === "hit_hold"){
+                if (evaluation === "RISK_CORRECT") {
+                    team.totalScore+=round.scoring.riskCorrect;
+                }
+                else if(evaluation === "RISK_WRONG"){
+                    team.totalScore+=round.scoring.riskWrong;
+                }
+                else if(evaluation === "SAFE_CORRECT"){
+                    team.totalScore+=round.scoring.safeCorrect;
+                }
+                else if(evaluation === "SAFE_WRONG"){
+                    team.totalScore+=round.scoring.safeWrong;
+                }
+                else{
+                    throw new Error("Invalid evalaution");
                 }
             }
 

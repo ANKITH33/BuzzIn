@@ -174,7 +174,7 @@ const UserPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
-      <Navbar2 />
+      <Navbar2 quizEnded={quizEnded}/>
       {isRateLimited && <RateLimitedUI />}
       <InfoBoxUser
         quizTitle={quizTitle}
@@ -199,6 +199,7 @@ const UserPage = () => {
             Here are the final standings
           </p>
           <Leaderboard teams={leaderboard} />
+          <button className='btn btn-secondary rounded-xl text-xl mt-12' onClick={() =>{navigate("/")}}>🏠︎ Continue to Home</button>
         </div>
       )}
       {!quizEnded && <AnswerBox setAnswer={setAnswer} answer={answer} pressed={pressed || buzzerLocked}/>}

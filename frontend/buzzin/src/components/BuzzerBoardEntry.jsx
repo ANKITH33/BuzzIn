@@ -1,6 +1,9 @@
 import DifferentialEvaluation from './DifferentialEvaluation';
 import ClassicEvaluation from './ClassicEvaluation';
 import ChallengesEvaluation from './ChallengesEvaluation';
+import PounceBounceEvaluation from './PounceBounceEvaluation';
+import HitHoldEvaluation from './HitHoldEvaluation';
+
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -15,7 +18,13 @@ const BuzzerBoardEntry = ({ name, response, roundType,roomCode }) => {
 
       case "buzzer_with_challenges":
         return <ChallengesEvaluation handleEvaluate={handleEvaluate}/>;
+      
+      case "pounce_bounce":
+        return <PounceBounceEvaluation handleEvaluate={handleEvaluate}/>;
 
+      case "hit_hold":
+        return <HitHoldEvaluation handleEvaluate={handleEvaluate}/>;
+      
       default:
         return null;
     }
@@ -32,10 +41,14 @@ const BuzzerBoardEntry = ({ name, response, roundType,roomCode }) => {
 
   return (
     <div className={`flex flex-row items-start ${roundType === "buzzer_with_challenges" ? "mb-3" : "mb-1"}`}>
-      <div className="bg-white text-slate-800 rounded-md flex justify-between p-2 border-2 border-slate-500 ml-6 mr-2 w-full">
-        <span>{name}</span>
-        <span className="font-semibold">{response}</span>
+      <div className="bg-white text-black rounded-md flex flex-col gap-1 p-2 border-2 border-slate-500 ml-6 mr-2 w-full">
+        <span className="font-semibold text-sm">{name}</span>
+
+        <p className="text-slate-800 break-words whitespace-pre-wrap">
+          {response}
+        </p>
       </div>
+
 
       {renderEvaluation()}
     </div>

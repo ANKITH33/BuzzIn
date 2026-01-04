@@ -13,6 +13,8 @@ const roundSchema = new mongoose.Schema({
       "classic_buzzer",
       "buzzer_with_challenges",
       "differential_scoring",
+      "pounce_bounce",
+      "hit_hold",
     ],
     required: true, 
   },
@@ -35,6 +37,13 @@ const roundSchema = new mongoose.Schema({
 
     // differential scoring
     scaler: { type: Number, default: 0 },
+
+    //hit_hold and pounce_bounce
+    riskCorrect: { type: Number, default: 0 },
+    riskWrong: { type: Number, default: 0 },
+    safeCorrect: { type: Number, default: 0 },
+    safeWrong: { type: Number, default: 0 },
+    
   },
 
   questionsCount:{

@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect} from "react";
 import ClassicBuzzerConfig from "./ClassicBuzzerConfig";
 import BuzzerWithChallengesConfig from "./BuzzerWithChallengesConfig";
 import DifferentialScoringConfig from "./DifferentialScoringConfig";
+import PounceBounceConfig from "./PounceBounceConfig";
+import HitHoldConfig from "./HitHoldConfig";
 
 const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidity, setRoundConfigs }) => {
   const [roundType, setRoundType] = useState(null);
@@ -58,7 +60,11 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
                     ? "classic_buzzer"
                     : roundType === "challenge"
                     ? "buzzer_with_challenges"
-                    : "differential_scoring",
+                    : roundType === "differential"
+                    ? "differential_scoring"
+                    : roundType === "pounce"
+                    ? "pounce_bounce"
+                    : "hit_hold",
                 questionsCount: configData.questionsCount,
                 scoring: configData.scoring
             }
@@ -85,8 +91,12 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
                     ? roundType === "classic"
                         ? "Classic Buzzer"
                         : roundType === "challenge"
-                        ? "Buzzer with Challenges"
-                        : "Differential Scoring"
+                        ? "Buzzer With Challenges"
+                        : roundType === "differential"
+                        ? "Differential Scoring"
+                        : roundType === "pounce"
+                        ? "Pounce Bounce"
+                        : "Hit and Hold"
                     : "Select Round Type"}
                 </button>
 
@@ -107,6 +117,16 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
                         Differential Scoring
                         </button>
                     </li>
+                    <li>
+                        <button onClick={() => handleSelect("pounce")}>
+                        Pounce Bounce
+                        </button>
+                    </li>
+                    <li>
+                        <button onClick={() => handleSelect("hit")}>
+                        Hit and Hold
+                        </button>
+                    </li>
                     </ul>
                 )}
             </div>
@@ -115,6 +135,8 @@ const RoundDescription = ({ roundIndex, openRound, setOpenRound, setRoundValidit
       {roundType === "classic" && <ClassicBuzzerConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {roundType === "challenge" && <BuzzerWithChallengesConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {roundType === "differential" && <DifferentialScoringConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
+      {roundType === "pounce" && <PounceBounceConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
+      {roundType === "hit" && <HitHoldConfig onValidityChange={setConfigValid} onConfigChange={setConfigData}/>}
       {/* Add other configs later */}
     </div>
   );
