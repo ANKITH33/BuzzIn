@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Room from '../models/Room.js'
 import Team from '../models/Team.js';
 import Round from '../models/Round.js';
@@ -314,4 +315,168 @@ export async function updateEvaluation(req, res) {
     });
 
     return res.status(200).json({success:true});
+}
+
+
+
+export async function updateScores (req,res){
+    const io = req.app.get("io");
+    const {roomCode} = req.params;
+
+    const room= await Room.findOne({code: roomCode});
+    if(!room){
+        return res.status(404).json({error: "Room not found"});
+    }
+    if(!room.quiz){
+        return res.status(400).json({error: "Quiz not started yet"});
+    }
+
+    const gameState= await GameState.findOne({room: room._id});
+    if(!gameState){
+        return res.status(404).json({error: "GameState not found"});
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try{
+        for(const entry of gameState.submittedAnswers){
+            const teamID = entry.team.toString();
+            if(!gameState.evaluations.has(teamID)){
+                throw new Error("Evaluations incomplete");
+            }
+        }
+
+        const round = await Round.findOne({quiz: room.quiz, order: gameState.currentRoundIndex,}).session(session);
+        if(!round){
+            throw new Error("Round not found");
+        }
+
+        const roundType = round.type;
+        let correctTeams = 0;
+        let wrongTeams = 0;
+
+        if(roundType === "differential_scoring"){
+            for(const entry of gameState.submittedAnswers){
+                const evalValue = gameState.evaluations.get(entry.team.toString());
+                if(evalValue === "CORRECT"){
+                    correctTeams++;
+                }
+                else{ 
+                    wrongTeams++;
+                }
+            }
+        }
+
+        const totalTeams = roundType === "differential_scoring" ? await Team.countDocuments({ quiz: room.quiz }): 0;
+
+        for(const entry of gameState.submittedAnswers){
+            const teamID=entry.team.toString();
+            const evaluation=gameState.evaluations.get(teamID);
+
+            const team=await Team.findById(entry.team).session(session);
+            if(!team){
+                throw new Error("Team not found");
+            }
+
+            if(roundType==="classic_buzzer"){
+                if (evaluation === "CHALLENGE_CORRECT" ||
+                    evaluation === "CHALLENGE_WRONG" ||
+                    evaluation === "NO_PENALTY" ||
+                    evaluation === "CONCUR_PENALTY"
+                ){
+                    throw new Error("Invalid evaluation");
+                }
+
+                if(evaluation === "CORRECT"){
+                    team.totalScore += round.scoring.correct;
+                }
+                else{
+                    team.totalScore += round.scoring.wrong;
+                }
+            }
+
+            else if(roundType === "buzzer_with_challenges"){
+                if(evaluation === "CORRECT"){
+                    team.totalScore += round.scoring.correct;
+                }
+                else if(evaluation === "CHALLENGE_CORRECT"){
+                    team.totalScore += round.scoring.challengeCorrect;
+                }
+                else if(evaluation === "CHALLENGE_WRONG"){
+                    team.totalScore += round.scoring.challengeWrong;
+                }
+                else if(evaluation === "NO_PENALTY"){
+                    team.totalScore += 0;
+                }
+                else if(evaluation === "CONCUR_PENALTY"){
+                    team.totalScore += round.scoring.concurPenalty;
+                }
+                else{
+                    team.totalScore += round.scoring.wrong;
+                }
+            }
+
+            else if(roundType === "differential_scoring"){
+                if(evaluation === "CHALLENGE_CORRECT" ||
+                    evaluation === "CHALLENGE_WRONG" ||
+                    evaluation === "NO_PENALTY" ||
+                    evaluation === "CONCUR_PENALTY"
+                ){
+                    throw new Error("Invalid evaluation");
+                }
+
+                if (evaluation === "CORRECT") {
+                    team.totalScore+=round.scoring.scaler*(totalTeams - correctTeams);
+                }
+                else{
+                    if (wrongTeams >= correctTeams) {
+                        team.totalScore -=round.scoring.scaler;
+                    }
+                    else{
+                        team.totalScore -=round.scoring.scaler*(correctTeams - wrongTeams);
+                    }
+                }
+            }
+
+            await team.save({session});
+        }
+
+        //update GameState
+        const numberofRounds= await Round.countDocuments({quiz: room.quiz});
+        if(gameState.currentQuestionIndex<round.questionsCount){
+            gameState.currentQuestionIndex++;
+        }
+        else{
+            gameState.currentQuestionIndex = 1;
+            if(gameState.currentRoundIndex<numberofRounds){
+                gameState.currentRoundIndex++;
+            }
+            else{
+                gameState.status="ended";
+                io.to(roomCode).emit("endof-quiz");
+            }
+        }
+
+        gameState.buzzedTeams=[];
+        gameState.buzzersLocked=false;
+        gameState.evaluations.clear();
+        gameState.submittedAnswers=[];
+
+        await gameState.save({ session });
+
+        await session.commitTransaction();
+        session.endSession();
+
+        io.to(roomCode).emit("updated-scores");
+
+        return res.status(200).json({ success: true });
+
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({ error: err.message });
+    }
+
 }

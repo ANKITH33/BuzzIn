@@ -31,8 +31,8 @@ const BuzzerBoardEntry = ({ name, response, roundType,roomCode }) => {
   };
 
   return (
-    <div className="flex flex-row items-center">
-      <div className="bg-white text-slate-800 rounded-md flex justify-between p-2 border-2 border-slate-500 ml-6 mr-2 mb-1 w-full">
+    <div className={`flex flex-row items-start ${roundType === "buzzer_with_challenges" ? "mb-3" : "mb-1"}`}>
+      <div className="bg-white text-slate-800 rounded-md flex justify-between p-2 border-2 border-slate-500 ml-6 mr-2 w-full">
         <span>{name}</span>
         <span className="font-semibold">{response}</span>
       </div>

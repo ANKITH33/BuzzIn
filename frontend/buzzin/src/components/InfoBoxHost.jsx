@@ -9,22 +9,21 @@ const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumbe
     await axios.post(`http://localhost:5001/api/rooms/${roomCode}/buzzers`,{locked});
     return;
   }
+  
   return (
     <div className="bg-blue-900 text-white rounded-xl mx-6 mt-6 p-2">
 
-      {/* Title */}
       <div className="px-1 py-2 mb-1">
         <div className="flex flex-col gap-1 md:flex-row md:justify-between text-sm md:text-lg mr-6 ">
             <h2 className="font-bold tracking-tight pl-5 text-xl md:text-2xl">
             Info
             </h2>
-            <button className="btn btn-secondary btn-sm">Next Question</button>
+            <button className="btn btn-secondary btn-sm" onClick={onNextQuestion}>Next Question</button>
         </div>
       </div>
 
       <hr className="border-white/90 mx-6" />
 
-      {/* Info row */}
       <div className="px-6 py-2 ">
         <div className="flex flex-col gap-1 md:flex-row md:justify-between text-sm md:text-lg ">
 

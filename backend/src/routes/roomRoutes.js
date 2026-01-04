@@ -1,6 +1,6 @@
 import express from "express"
 import { CreateRoom , getCurrentGameInfo, getRoomByCode, getBuzzerState, toggleBuzzers} from "../controllers/RoomController.js"; 
-import { updateResponses, getMyBuzzerStatus, getBuzzerBoard, clearBuzzers, updateEvaluation} from "../controllers/RoomController.js"; 
+import { updateResponses, getMyBuzzerStatus, getBuzzerBoard, clearBuzzers, updateEvaluation, updateScores} from "../controllers/RoomController.js"; 
 
 const router = express.Router();
 
@@ -14,5 +14,6 @@ router.get("/:roomCode/buzz-status", getMyBuzzerStatus);
 router.get("/:roomCode/buzzerboard", getBuzzerBoard);
 router.post("/:roomCode/clearbuzzerboard", clearBuzzers);
 router.post("/:roomCode/evaluation",updateEvaluation);
+router.post("/:roomCode/nextQuestion", updateScores)
 
 export default router;

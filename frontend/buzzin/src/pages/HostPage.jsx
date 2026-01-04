@@ -2,6 +2,7 @@ import React, { useEffect, useState,useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
+import toast from 'react-hot-toast';
 
 import Navbar2 from '../components/Navbar2';
 import RateLimitedUI from '../components/RateLimitedUI';
@@ -71,12 +72,28 @@ const HostPage = () => {
     }
 
     socket.on("response-updated", onResponseUpdated);
+
+    const onScoresUpdated = async () => {
+      const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+      setRoundNumber(game.data.roundNumber);
+      setQuestionNumber(game.data.questionNumber);
+      setRoundType(game.data.roundType);
+
+      const lb = await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
+      setLeaderboard(lb.data);
+
+      setResponses([]);
+      setBuzzedTeams([]);
+    };
+
+    socket.on("updated-scores", onScoresUpdated);
     
 
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked");
       socket.off("responses-updated");
+      socket.off("updated-scores", onScoresUpdated);
     };
   }, [roomCode]);//runs on mount and if roomCode changes
 
@@ -127,8 +144,29 @@ const HostPage = () => {
     );
   }
 
-  const handleNextQuestion = () => {
-    setQuestionNumber(q => q + 1);
+  const handleNextQuestion = async () => {
+    try{
+      await axios.post(`http://localhost:5001/api/rooms/${roomCode}/nextQuestion`);
+      
+      const game= await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+      setRoundNumber(game.data.roundNumber);
+      setQuestionNumber(game.data.questionNumber);
+      setRoundType(game.data.roundType);
+
+      setResponses([]);
+      setBuzzedTeams([]);
+
+      const buzzerRes= await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
+      setBuzzerLocked(buzzerRes.data.locked);
+
+      const lb= await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
+      setLeaderboard(lb.data);
+
+      toast.success("Scores Updated");
+    } catch(error){
+      console.log("error",error);
+      return;
+    }
   };
 
   const handleClearAll = async () => {

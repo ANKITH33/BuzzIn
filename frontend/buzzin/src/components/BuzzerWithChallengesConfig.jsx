@@ -140,7 +140,7 @@ const BuzzerWithChallengesConfig = ({ onValidityChange, onConfigChange }) => {
         error={concurPenaltyError}
         onChange={numericChange(setConcurPenalty, setConcurPenaltyError)}
         onBlur={() =>
-          positiveBlur(concurPenalty, setConcurPenaltyError)
+          nonPositiveBlur(concurPenalty, setConcurPenaltyError)
         }
       />
 

@@ -90,9 +90,28 @@ const UserPage = () => {
       setAnswer("");
     })
 
+    socket.on("updated-scores", async () => {
+      const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+
+      setRoundNumber(game.data.roundNumber);
+      setQuestionNumber(game.data.questionNumber);
+      setRoundType(game.data.roundType);
+
+      setPressed(false);
+      setAnswer("");
+
+      const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
+      setBuzzersLocked(buzzerRes.data.locked);
+
+      const lb= await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
+      setLeaderboard(lb.data);
+    });
+
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked", onBuzzersLocked); 
+      socket.off("updated-scores");
+      socket.off("buzzers-cleared");
     };
   }, [roomCode]);
 

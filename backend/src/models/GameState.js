@@ -70,7 +70,7 @@ const gameStateSchema = new mongoose.Schema(
         },
         answerText: {
           type: String,
-          required: true,
+          required: false,
         },
         evaluated: {
           type: Boolean,
