@@ -43,6 +43,11 @@ const gameStateSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    
+    questionProcessed: {
+      type: Boolean,
+      default: false,
+    },
 
     evaluations: {
       type: Map,

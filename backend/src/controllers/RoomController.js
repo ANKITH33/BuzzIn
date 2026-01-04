@@ -79,6 +79,7 @@ export async function getCurrentGameInfo (req,res){
         roundNumber: gameState.currentRoundIndex,
         questionNumber: gameState.currentQuestionIndex,
         roundType: round?.type || "",
+        status: gameState.status,
     });
 }
 
@@ -164,8 +165,11 @@ export async function updateResponses (req,res){
         },
         { new: true }
     );
-    if (!gameState) {
+    if(!gameState){
         return res.status(409).json({ error: "Team already buzzed" });
+    }
+    if(gameState.questionProcessed){
+        return res.status(409).json({ error: "Question already processed",});
     }
 
     const io = req.app.get("io");
@@ -250,7 +254,8 @@ export async function clearBuzzers (req,res) {
         {room : room._id},
         {buzzedTeams: [],
         submittedAnswers: [],
-        evaluations: {},},
+        evaluations: {},
+        questionProcessed: false,},
         {new:true}
     )
     if (!gameState) {
@@ -298,6 +303,9 @@ export async function updateEvaluation(req, res) {
     if(!gameState){
         return res.status(404).json({error:"GameState not found"});
     }
+    if (gameState.questionProcessed) {
+        return res.status(409).json({error: "Question already processed",});
+    }
 
 
     const hasAnswered = gameState.submittedAnswers.some(a => a.team.equals(team._id));
@@ -336,8 +344,13 @@ export async function updateScores (req,res){
         return res.status(404).json({error: "GameState not found"});
     }
 
+    if (gameState.questionProcessed) {
+        return res.status(409).json({error: "This question has already been processed"});
+    }
+
     const session = await mongoose.startSession();
     session.startTransaction();
+    gameState.questionProcessed=true;
 
     try{
         for(const entry of gameState.submittedAnswers){
@@ -462,6 +475,7 @@ export async function updateScores (req,res){
         gameState.buzzersLocked=false;
         gameState.evaluations.clear();
         gameState.submittedAnswers=[];
+        gameState.questionProcessed = false;
 
         await gameState.save({ session });
 

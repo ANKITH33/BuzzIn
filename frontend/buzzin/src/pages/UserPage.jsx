@@ -32,6 +32,7 @@ const UserPage = () => {
   const socketRef = useRef(null);
 
   const [buzzerLocked,setBuzzersLocked]= useState(false);
+  const [quizEnded, setQuizEnded] = useState(false);
 
 
 
@@ -91,6 +92,7 @@ const UserPage = () => {
     })
 
     socket.on("updated-scores", async () => {
+      if(quizEnded){return;}
       const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
 
       setRoundNumber(game.data.roundNumber);
@@ -107,11 +109,20 @@ const UserPage = () => {
       setLeaderboard(lb.data);
     });
 
+    socket.on("endof-quiz", async () =>{
+      setQuizEnded(true);
+      setBuzzersLocked(true);
+      setQuestionNumber("ENDED");
+      setRoundNumber("ENDED");
+      setRoundType("ENDED");
+    })
+
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked", onBuzzersLocked); 
       socket.off("updated-scores");
-      socket.off("buzzers-cleared");
+      socket.off("buzzer-cleared");
+      socket.off("endof-quiz");
     };
   }, [roomCode]);
 
@@ -136,9 +147,19 @@ const UserPage = () => {
 
         const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
 
-        setRoundNumber(game.data.roundNumber);
-        setQuestionNumber(game.data.questionNumber);
-        setRoundType(game.data.roundType);
+        if(game.data.status === "ended"){
+          setQuizEnded(true);
+          setRoundNumber("ENDED");
+          setQuestionNumber("ENDED");
+          setRoundType("ENDED");
+          setBuzzersLocked(true);
+        }
+        else{
+          setQuizEnded(false);
+          setRoundNumber(game.data.roundNumber);
+          setQuestionNumber(game.data.questionNumber);
+          setRoundType(game.data.roundType);
+        }
 
         const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
         setBuzzersLocked(buzzerRes.data.locked);
@@ -152,7 +173,7 @@ const UserPage = () => {
   }, [roomCode, navigate]);
 
   return (
-    <div className="min-h-screen bg-slate-900 space-y-3">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
       <Navbar2 />
       {isRateLimited && <RateLimitedUI />}
       <InfoBoxUser
@@ -163,15 +184,31 @@ const UserPage = () => {
         roundNumber={roundNumber}
         questionNumber={questionNumber}
         roundType={roundType}
+        quizEnded={quizEnded}
       />
-      <AnswerBox setAnswer={setAnswer} answer={answer} pressed={pressed || buzzerLocked}/>
+
+      {quizEnded && (
+        <div className="mx-6 my-6 rounded-xl bg-gradient-bl from-slate-900 to-slate-600 p-6 text-center">
+          <h1 className="text-4xl font-bold text-green-400 text-center">
+            <span className="mr-2">🎉</span>
+            End of {quizTitle} 
+            <span className="ml-2">🎉</span>
+          </h1>
+
+          <p className="text-slate-300 mt-2 mb-4 text-2xl">
+            Here are the final standings
+          </p>
+          <Leaderboard teams={leaderboard} />
+        </div>
+      )}
+      {!quizEnded && <AnswerBox setAnswer={setAnswer} answer={answer} pressed={pressed || buzzerLocked}/>}
 
       <div className="flex flex-col md:flex-row justify-between items-start px-20 pt-2 gap-6">
         <div className="md:w-1/2 w-full">
-          <Buzzer onBuzz={handleSubmit} pressed={pressed} buzzerLocked={buzzerLocked}/>
+          {!quizEnded && <Buzzer onBuzz={handleSubmit} pressed={pressed} buzzerLocked={buzzerLocked}/>}
         </div>
         <div className="md:w-1/2 w-full">
-          <Leaderboard teams={leaderboard} />
+          {!quizEnded && <Leaderboard teams={leaderboard} />}
         </div>
         
       </div>

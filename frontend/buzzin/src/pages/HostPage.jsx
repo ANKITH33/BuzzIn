@@ -18,6 +18,8 @@ const HostPage = () => {
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [nextLoading, setNextLoading] = useState(false);
+
 
   const[roundNumber,setRoundNumber]=useState(1);
   const[questionNumber,setQuestionNumber]=useState(1);
@@ -31,6 +33,7 @@ const HostPage = () => {
   const [buzzedTeams, setBuzzedTeams]= useState([]);
 
   const [buzzerLocked, setBuzzerLocked] = useState(false);
+  const [quizEnded,setQuizEnded]=useState(false);
   
 
   useEffect(() => {
@@ -74,7 +77,16 @@ const HostPage = () => {
     socket.on("response-updated", onResponseUpdated);
 
     const onScoresUpdated = async () => {
+      if(quizEnded){return;}
       const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+      if(game.data.status =="ended"){
+        setQuizEnded(true);
+        setRoundNumber("ENDED");
+        setQuestionNumber("ENDED");
+        setRoundType("ENDED");
+        setBuzzerLocked(true);
+        return;
+      }
       setRoundNumber(game.data.roundNumber);
       setQuestionNumber(game.data.questionNumber);
       setRoundType(game.data.roundType);
@@ -88,15 +100,27 @@ const HostPage = () => {
 
     socket.on("updated-scores", onScoresUpdated);
     
+    const onEndQuiz = () => {
+      setQuizEnded(true);
+      setRoundNumber("ENDED");
+      setQuestionNumber("ENDED");
+      setRoundType("ENDED");
+      setBuzzerLocked(true);
+    };
+
+    socket.on("endof-quiz", onEndQuiz);
 
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked");
       socket.off("responses-updated");
       socket.off("updated-scores", onScoresUpdated);
+      socket.off("endof-quiz", onEndQuiz);
     };
   }, [roomCode]);//runs on mount and if roomCode changes
 
+
+//////////////////////////////////////////////////////////////////////////////////
   useEffect(() => {
     async function fetchRoomOnce() {
       try {
@@ -108,10 +132,19 @@ const HostPage = () => {
         setLeaderboard(lb.data);
         
         const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
-
-        setRoundNumber(game.data.roundNumber);
-        setQuestionNumber(game.data.questionNumber);
-        setRoundType(game.data.roundType);
+        if(game.data.status === "ended"){
+          setQuizEnded(true);
+          setRoundNumber("ENDED");
+          setQuestionNumber("ENDED");
+          setRoundType("ENDED");
+          setBuzzerLocked(true);
+        }
+        else{
+          setQuizEnded(false);
+          setRoundNumber(game.data.roundNumber);
+          setQuestionNumber(game.data.questionNumber);
+          setRoundType(game.data.roundType);
+        }
 
         const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
         setBuzzerLocked(buzzerRes.data.locked);
@@ -145,6 +178,10 @@ const HostPage = () => {
   }
 
   const handleNextQuestion = async () => {
+    if (nextLoading){
+      return;
+    }
+    setNextLoading(true);
     try{
       await axios.post(`http://localhost:5001/api/rooms/${roomCode}/nextQuestion`);
       
@@ -163,10 +200,11 @@ const HostPage = () => {
       setLeaderboard(lb.data);
 
       toast.success("Scores Updated");
-    } catch(error){
-      console.log("error",error);
-      return;
+    } catch (error) {
+      const msg =error.response?.data?.error ||"Please wait, this question is already being processed";
+      toast.error(msg);
     }
+    setNextLoading(false);
   };
 
   const handleClearAll = async () => {
@@ -176,7 +214,7 @@ const HostPage = () => {
   }
 
   return (
-    <div className="h-screen overflow-y-auto  bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
+    <div className="h-screen overflow-y-auto bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
         <Navbar2 />
     
         {isRateLimited && <RateLimitedUI/>}
@@ -190,16 +228,29 @@ const HostPage = () => {
           onNextQuestion={handleNextQuestion}
           buzzerLocked={buzzerLocked}
           setBuzzerLocked={setBuzzerLocked}
+          quizEnded={quizEnded}
+          nextLoading={nextLoading}
           />
 
-          <div className="flex flex-col md:flex-row justify-between items-start px-20 pt-2 gap-6">
+          {quizEnded && (
+            <div className="mx-6 my-6 rounded-xl bg-gradient-bl from-slate-900 to-slate-600 p-6 text-center">
+              <h1 className="text-4xl font-bold text-green-400"> 🎉End of the Quiz🎉</h1>
+              <p className="text-slate-300 mt-2 mb-4 text-2xl">
+                Here are the final standings
+              </p>
+              
+              <Leaderboard teams={leaderboard} />
+            </div>
+          )}
+          
+          {!quizEnded && (<div className="flex flex-col md:flex-row justify-between items-start px-20 pt-2 gap-6">
             <div className="md:w-1/2">
               <Leaderboard teams={leaderboard}/>
             </div>
             <div className="md:w-1/2">
               <BuzzerBoard responses={responses} handleClearAll={handleClearAll} roundType={roundType} roomCode={roomCode}/>
             </div>
-          </div>
+          </div>)}
     </div>
   );
 };

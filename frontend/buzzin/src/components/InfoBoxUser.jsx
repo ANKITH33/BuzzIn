@@ -1,6 +1,6 @@
 import React from 'react'
 
-const InfoBoxUser = ({quizTitle, teamName, players, roomCode,roundNumber, questionNumber,roundType}) => {
+const InfoBoxUser = ({quizTitle, teamName, players, roomCode,roundNumber, questionNumber,roundType,quizEnded}) => {
 
 
   return (
@@ -40,7 +40,7 @@ const InfoBoxUser = ({quizTitle, teamName, players, roomCode,roundNumber, questi
 
       <hr className="border-white/70 mx-6 " />
 
-      <div className="px-6 ">
+      {!quizEnded && (<div className="px-6 ">
         <div className="flex flex-col gap-1 md:flex-row md:justify-between text-sm md:text-lg ">
 
           <p className='text-base py-2'>
@@ -56,7 +56,7 @@ const InfoBoxUser = ({quizTitle, teamName, players, roomCode,roundNumber, questi
           </p>
 
         </div>
-      </div>
+      </div>)}
 
       <hr className="border-white/70 mx-6 p-2" />
     </div>
