@@ -12,6 +12,11 @@ const teamSchema = new mongoose.Schema(
       default: 0,
     },
 
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
     quiz: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Quiz", //This ObjectId refers to a document in the Quiz collection
@@ -21,7 +26,7 @@ const teamSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// team names must be unique per quiz
-teamSchema.index({ quiz: 1, teamName: 1 }, { unique: true });
+// team names must be unique per quiz, it also allows teams to join again
+teamSchema.index({ quiz: 1, teamName: 1 }, { unique: true, partialFilterExpression: { isActive: true }, });
 
 export default mongoose.model("Team", teamSchema);

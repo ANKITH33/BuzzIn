@@ -62,10 +62,10 @@ const UserPage = () => {
     }
     const socket = socketRef.current;
 
-    socket.emit("join-room", roomCode);
+    socket.emit("join-room", {roomCode,teamName});
 
     socket.on("connect", () => {
-      socket.emit("join-room", roomCode);
+      socket.emit("join-room", {roomCode,teamName});
     });
 
     const onBuzzersLocked = (locked) => {

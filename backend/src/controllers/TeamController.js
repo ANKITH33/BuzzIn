@@ -10,6 +10,24 @@ export async function joinTeam(req, res) {
     return res.status(400).json({ error: "Invalid room" });
   }
 
+  const existingTeam= await Team.findOne({quiz: room.quiz,teamName: teamName, isActive:true});
+  if(existingTeam){
+    return res.status(409).json({error: "Team name already taken"});
+  }
+
+  const existingInactive= await Team.findOne({quiz:room.quiz, teamName, isActive:false});
+  if(existingInactive){
+    existingInactive.isActive=true;
+    await existingInactive.save();
+
+    const io = req.app.get("io");
+
+    io.to(roomCode).emit("players-updated");
+    io.to(roomCode).emit("leaderboard-updated");
+
+    return res.status(200).json(existingInactive);
+  }
+
   try {
     const team = await Team.create({ teamName, quiz: room.quiz });
     const io = req.app.get("io");
