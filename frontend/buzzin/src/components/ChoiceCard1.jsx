@@ -1,13 +1,14 @@
 import React from 'react'
-import {Link} from 'react-router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { motion } from "framer-motion";
 
-const ChoiceCard = () => {
+const ChoiceCard1 = () => {
     const [roomCode,setRoomCode]=useState("");
     const [teamName,setteamName]=useState("");
+    const [rejoin,setRejoin] = useState(false);
 
     const navigate = useNavigate();
 
@@ -23,24 +24,49 @@ const ChoiceCard = () => {
         }
 
         try {
-            await axios.post("http://localhost:5001/api/teams/join",{roomCode,teamName});
+            if(rejoin){
+                await axios.post("http://localhost:5001/api/teams/rejoin",{roomCode,teamName});
+            }
+            else{
+                await axios.post("http://localhost:5001/api/teams/join",{roomCode,teamName});
+            }
             
             navigate(`/join/${roomCode}`,{ state: teamName, replace: true });
         } catch (err) {
-            if (err.response?.status === 404) {
-                toast.error("Room does not exist");
-            } else if(err.response?.status === 409){
-                toast.error("Team name already taken");
+            const status = err.response?.status;
+            const message = err.response?.data?.error;
+
+            if(rejoin){
+                if(status===404){
+                    toast.error(message || "No inactive team found to rejoin");
+                }
+                else if(status===409){
+                    toast.error(message || "Team is already active in the room");
+                }
+                else{
+                    toast.error("Failed to rejoin room");
+                }
             }
-            else {
-                toast.error("Failed to join room");
+            else{
+                if(status === 409){
+                    toast.error(message || "Team name already taken");
+                }
+                else if(status==404){
+                    toast.error(message || "Invalid Room");
+                }
+                else{
+                    toast.error("Failed to join room");
+                }
             }
         }
     };
 
   return (
 
-    <div className="bg-blue-900 p-8 rounded-2xl w-[420px]">
+    <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }} className="bg-blue-900 p-8 rounded-2xl w-full max-w-[420px] h-full flex flex-col">
         <div className='space-y-5'>
             {/* Header Section */}
             <div className="space-y-2">
@@ -72,18 +98,23 @@ const ChoiceCard = () => {
                 placeholder="Display Name"
                 onChange={(e) => setteamName(e.target.value)}
                 />
+                <label className="flex items-center gap-2 cursor-pointer text-sm pl-2 text-white">
+                    <input type="checkbox" className="toggle toggle-info outline-collapse" onChange={(e)=> setRejoin(e.target.checked)}/>
+                    Rejoining??
+                </label>
+ 
             </div>
 
             {/* Action */}
-            <button className="btn btn-wide btn-info" onClick={handleSubmit}>
+            <motion.button whileTap={{ scale: 0.95 }} className="btn btn-wide btn-info mt-6" onClick={handleSubmit}>
             Let's Buzz!!
-            </button>
+            </motion.button>
 
 
         </div>
-    </div>
+    </motion.div>
 
   )
 }
 
-export default ChoiceCard
+export default ChoiceCard1

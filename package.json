@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "framer-motion": "^12.23.27",
     "socket.io-client": "^4.8.3"
   }
 }

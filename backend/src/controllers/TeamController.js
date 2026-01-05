@@ -10,22 +10,10 @@ export async function joinTeam(req, res) {
     return res.status(400).json({ error: "Invalid room" });
   }
 
-  const existingTeam= await Team.findOne({quiz: room.quiz,teamName: teamName, isActive:true});
-  if(existingTeam){
-    return res.status(409).json({error: "Team name already taken"});
-  }
+  const inactiveTeam = await Team.findOne({quiz: room.quiz,teamName,isActive: false,});
 
-  const existingInactive= await Team.findOne({quiz:room.quiz, teamName, isActive:false});
-  if(existingInactive){
-    existingInactive.isActive=true;
-    await existingInactive.save();
-
-    const io = req.app.get("io");
-
-    io.to(roomCode).emit("players-updated");
-    io.to(roomCode).emit("leaderboard-updated");
-
-    return res.status(200).json(existingInactive);
+  if(inactiveTeam){
+    return res.status(409).json({error: "Team exists. Try rejoining"});
   }
 
   try {
@@ -61,4 +49,33 @@ export async function getLeaderboard(req, res) {
     .select("teamName totalScore");
 
   res.json(teams);
+}
+
+
+export async function rejoinTeam (req,res){
+  const {roomCode,teamName}=req.body;
+
+  const room= await Room.findOne({code: roomCode}).select("quiz");
+  if (!room || !room.quiz) {
+    return res.status(400).json({ error: "Invalid room" });
+  }
+
+  const existingTeam= await Team.findOne({quiz: room.quiz,teamName: teamName, isActive:true});
+  if(existingTeam){
+    return res.status(409).json({error: "Team is already in the room"});
+  }
+
+  const existingInactive= await Team.findOne({quiz:room.quiz, teamName, isActive:false});
+  if(existingInactive){
+    existingInactive.isActive=true;
+    await existingInactive.save();
+
+    const io = req.app.get("io");
+
+    io.to(roomCode).emit("players-updated");
+    io.to(roomCode).emit("leaderboard-updated");
+
+    return res.status(200).json(existingInactive);
+  }
+  return res.status(404).json({error: "Team not found. Don't rejoin"});
 }
