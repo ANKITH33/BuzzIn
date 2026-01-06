@@ -15,7 +15,7 @@ const CreateQuiz = () => {
   const location = useLocation();
   const quizTitle = location.state?.quizTitle;
   return (
-    <div className="h-screen overflow-y-auto  bg-gradient-to-b from-slate-950 to-slate-800 space-y-3">
+    <div className="h-screen overflow-y-auto  bg-gradient-to-b from-slate-950/90 to-slate-800/90 space-y-3">
       <Navbar2 />
       
       {isRateLimited && <RateLimitedUI/>}

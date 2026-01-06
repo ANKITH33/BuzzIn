@@ -24,7 +24,7 @@ const HomePage = () => {
         }
     }, [navigate]);
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-700 space-y-2 md:space-y-7">
+        <div className="min-h-screen bg-gradient-to-b from-slate-950/90 to-slate-800/90 space-y-2 md:space-y-7">
             <Navbar/>   
             
             {isRateLimited && <RateLimitedUI/>}

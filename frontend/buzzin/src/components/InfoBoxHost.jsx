@@ -11,7 +11,7 @@ const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumbe
   }
   
   return (
-    <div className="bg-blue-900 text-white rounded-xl mx-6 mt-6 p-2">
+    <div className="bg-gradient-to-b from-blue-900/90 to-slate-800 backdrop-blur-md text-white rounded-xl mx-6 mt-6 p-2">
 
       <div className="px-1 py-2 mb-1">
         <div className="flex flex-col gap-1 md:flex-row md:justify-between text-sm md:text-lg mr-6 ">

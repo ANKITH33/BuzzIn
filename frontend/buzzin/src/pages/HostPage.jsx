@@ -42,10 +42,10 @@ const HostPage = () => {
     }
     const socket = socketRef.current;//use existing socket
 
-    socket.emit("join-room", roomCode);
+    socket.emit("join-room", {roomCode});
 
     socket.on("connect", () => {
-      socket.emit("join-room", roomCode);
+      socket.emit("join-room", {roomCode});
     });//incase socket connection is lost and it retries (Socket.io detects this and enters reconnect mode)
     //When a socket disconnects (including laptop sleep), it is removed from the room on the backend.
 
@@ -113,7 +113,7 @@ const HostPage = () => {
     return () => {
       socket.off("players-updated", onPlayersUpdated);
       socket.off("buzzers-locked");
-      socket.off("responses-updated");
+      socket.off("response-updated");
       socket.off("updated-scores", onScoresUpdated);
       socket.off("endof-quiz", onEndQuiz);
     };
@@ -214,7 +214,7 @@ const HostPage = () => {
   }
 
   return (
-    <div className="h-screen overflow-y-auto bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
+    <div className="h-screen overflow-y-auto bg-gradient-to-b from-slate-950/90 to-slate-800/90 space-y-3">
         <Navbar2 quizEnded={quizEnded}/>
     
         {isRateLimited && <RateLimitedUI/>}

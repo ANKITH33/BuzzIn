@@ -3,18 +3,18 @@ import { useState } from "react";
 const Buzzer = ({onBuzz,pressed,buzzerLocked}) => {
   return (
     <div className=" flex justify-center">
-      <button
+      <button 
+        type="button"
         onClick={onBuzz}
         disabled={buzzerLocked || pressed}
         className={`
-          ${buzzerLocked ? "bg-warning" : pressed ? "bg-primary" : "bg-error"}
-          ${buzzerLocked ? "text-accent-content" : pressed ? "text-accent-content" : "text-white"}
+          ${buzzerLocked ? "bg-warning" : pressed ? "bg-primary" : "bg-red-700"}
           ${buzzerLocked ? "text-accent-content" : pressed ? "text-accent-content" : "text-white"}
           text-4xl
           font-bold
           rounded-xl
-          w-[50vw]
-          h-[50vh]
+          w-full md:w-[50vw]
+          h-[65vh] md:h-[50vh]
           transition-colors
           duration-200
           active:scale-95

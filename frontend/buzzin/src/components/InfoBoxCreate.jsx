@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 const InfoBoxCreate = ({ quizTitle, roomCode }) => {
   
   return (
-    <div className="bg-blue-900 text-white rounded-xl mx-6 mt-6 p-2">
+    <div className="bg-gradient-to-b from-blue-900/90 to-slate-800 backdrop-blur-md text-white rounded-xl mx-6 mt-6 p-2">
 
       {/* Title */}
       <div className="px-1 py-2">

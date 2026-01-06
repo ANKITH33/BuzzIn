@@ -1,6 +1,6 @@
 const AnswerBox = ({ setAnswer, answer, pressed }) => {
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-3xl mx-auto px-6">
       <input
         type="text"
         placeholder="Type your answer"

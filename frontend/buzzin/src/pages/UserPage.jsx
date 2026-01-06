@@ -173,7 +173,7 @@ const UserPage = () => {
   }, [roomCode, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-700 space-y-3">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950/90 to-slate-800/90 space-y-3">
       <Navbar2 quizEnded={quizEnded}/>
       {isRateLimited && <RateLimitedUI />}
       <InfoBoxUser
@@ -204,7 +204,7 @@ const UserPage = () => {
       )}
       {!quizEnded && <AnswerBox setAnswer={setAnswer} answer={answer} pressed={pressed || buzzerLocked}/>}
 
-      <div className="flex flex-col md:flex-row justify-between items-start px-20 pt-2 gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start px-4 md:px-20 pt-2 gap-6">
         <div className="md:w-1/2 w-full">
           {!quizEnded && <Buzzer onBuzz={handleSubmit} pressed={pressed} buzzerLocked={buzzerLocked}/>}
         </div>

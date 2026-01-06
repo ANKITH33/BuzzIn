@@ -43,7 +43,13 @@ const ChoiceCard2 = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="bg-blue-900 p-8 rounded-2xl w-full max-w-[420px] mb-4  h-full flex flex-col"
+      className="
+    bg-gradient-to-b from-slate-950/50 to-slate-800 backdrop-blur-md
+    border border-cyan-400/60
+    shadow-[0_0_25px_rgba(34,211,238,0.35)]
+    rounded-2xl p-8
+    w-full max-w-[420px] h-full flex flex-col
+  "
     >
       {/* Content */}
       <div className="space-y-5 flex-1 ">

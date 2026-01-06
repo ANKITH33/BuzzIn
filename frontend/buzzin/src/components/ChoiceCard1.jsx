@@ -66,7 +66,14 @@ const ChoiceCard1 = () => {
     <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }} className="bg-blue-900 p-8 rounded-2xl w-full max-w-[420px] h-full flex flex-col">
+        transition={{ duration: 0.4, ease: "easeOut" }} 
+        className="
+    bg-gradient-to-b from-slate-950/50 to-slate-800 backdrop-blur-md
+    border border-cyan-400/60
+    shadow-[0_0_25px_rgba(34,211,238,0.35)]
+    rounded-2xl p-8
+    w-full max-w-[420px] h-full flex flex-col
+  ">
         <div className='space-y-5'>
             {/* Header Section */}
             <div className="space-y-2">
@@ -106,7 +113,7 @@ const ChoiceCard1 = () => {
             </div>
 
             {/* Action */}
-            <motion.button whileTap={{ scale: 0.95 }} className="btn btn-wide btn-info mt-6" onClick={handleSubmit}>
+            <motion.button whileTap={{ scale: 0.95 }} className="btn btn-wide bg-sky-500 hover:bg-sky-400 text-slate-900 mt-6" onClick={handleSubmit}>
             Let's Buzz!!
             </motion.button>
 

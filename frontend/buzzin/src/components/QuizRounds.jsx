@@ -77,13 +77,13 @@ const QuizRounds = ({roomCode, quizTitle}) => {
     
   return (
     <>
-    <div className="bg-green-600 m-6 rounded-xl shadwo-sm p-5">
+    <div className="bg-gradient-to-b from-green-600 to-slate-800 backdrop-blur-md  m-6 rounded-xl shadwo-sm p-5">
         <div className="flex flex-row md:flex-row text-sm md:text-lg gap-12 md:gap-8">
 
             <div className="flex flex-col">
                 <div className="flex items-center gap-3">
                     <button
-                    className="btn btn-sm bg-green-800 border-emerald-800"
+                    className="btn btn-sm bg-green-950 border-emerald-950"
                     onClick={() =>
                         setRounds((r) => String(Math.max(1, Number(r || 1) - 1)))
                     }
@@ -100,7 +100,7 @@ const QuizRounds = ({roomCode, quizTitle}) => {
 
 
                     <button
-                    className="btn btn-sm bg-green-800 border-emerald-800"
+                    className="btn btn-sm bg-green-950 border-emerald-950"
                     onClick={() =>
                         setRounds((r) => String(Math.min(20, Number(r || 1) + 1)))
                     }
