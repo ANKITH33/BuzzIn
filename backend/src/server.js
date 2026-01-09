@@ -16,7 +16,6 @@ import Team from "./models/Team.js";
 
 dotenv.config();//helps read the env file
 const app = express();
-app.options("*", cors());
 const PORT=process.env.PORT || 5001;
 
 
@@ -25,7 +24,7 @@ app.use(cors({
     "http://localhost:5173",
     "https://buzzin-xi.vercel.app"
   ],
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST","OPTIONS"],
   credentials: true
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
