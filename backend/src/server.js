@@ -16,6 +16,7 @@ import Team from "./models/Team.js";
 
 dotenv.config();//helps read the env file
 const app = express();
+app.options("*", cors());
 const PORT=process.env.PORT || 5001;
 
 
@@ -34,10 +35,11 @@ app.use((req,res,next) => {
     next();
 })
 
-app.use(rateLimiter);
+
 app.use("/api/rooms", roomRoutes);
 app.use("/api/quizzes", quizRoutes);
 app.use("/api/teams", teamRoutes);
+app.use(rateLimiter);
 
 connectDB().then(()=>{
     const server = http.createServer(app);//creates a raw HTTP server
