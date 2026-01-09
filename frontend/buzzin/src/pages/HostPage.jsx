@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import Navbar2 from '../components/Navbar2';
 import RateLimitedUI from '../components/RateLimitedUI';
 import InfoBoxHost from '../components/InfoBoxHost';
-import Leaderboard from "../components/Leaderboard";
+import Leaderboard from "../components/LeaderBoard";
 import BuzzerBoard from "../components/BuzzerBoard";
 
 const HostPage = () => {

@@ -9,7 +9,7 @@ import RateLimitedUI from '../components/RateLimitedUI';
 import InfoBoxUser from '../components/InfoBoxUser';
 import Buzzer from '../components/Buzzer';
 import AnswerBox from '../components/AnswerBox';
-import Leaderboard from '../components/Leaderboard';
+import Leaderboard from '../components/LeaderBoard';
 
 const UserPage = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
