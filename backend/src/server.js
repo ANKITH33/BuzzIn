@@ -20,10 +20,12 @@ const PORT=process.env.PORT || 5001;
 
 
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://buzz-in-xi.vercel.app/" ,
-    ],
+  origin: [
+    "http://localhost:5173",
+    "https://buzzin-xi.vercel.app"
+  ],
+  methods: ["GET", "POST"],
+  credentials: true
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
@@ -40,13 +42,15 @@ app.use("/api/teams", teamRoutes);
 connectDB().then(()=>{
     const server = http.createServer(app);//creates a raw HTTP server
 
-    const io = new Server(server, { //io is Socket.IO instance
-        cors: { origin: [
-            "http://localhost:5173",
-            "https://buzz-in-xi.vercel.app/", 
+    const io = new Server(server, {
+    cors: {
+        origin: [
+        "http://localhost:5173",
+        "https://buzzin-xi.vercel.app"
         ],
-        methods: ["GET", "POST"]
-        }
+        methods: ["GET", "POST"],
+        credentials: true
+    }
     });//Socket.IO attaches itself to the existing HTTP server and listens for socket connections coming to that server.
 
     io.on("connection", (socket) => { //Whenever any browser connects using Socket.IO, run this function
