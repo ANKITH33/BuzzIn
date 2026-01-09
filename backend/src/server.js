@@ -18,6 +18,13 @@ dotenv.config();//helps read the env file
 const app = express();
 const PORT=process.env.PORT || 5001;
 
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 
 app.use(cors({
   origin: [

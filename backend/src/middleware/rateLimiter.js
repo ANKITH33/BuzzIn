@@ -2,6 +2,7 @@ import ratelimit from "../config/upstash.js";
 
 const rateLimiter = async (req,res,next) =>{
     try{
+        if (req.method === "OPTIONS") return next();
         const {success}= await ratelimit.limit("hello");
 
         if(!success){
