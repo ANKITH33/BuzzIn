@@ -25,10 +25,10 @@ const ChoiceCard1 = () => {
 
         try {
             if(rejoin){
-                await axios.post("http://localhost:5001/api/teams/rejoin",{roomCode,teamName});
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/teams/rejoin`,{roomCode,teamName});
             }
             else{
-                await axios.post("http://localhost:5001/api/teams/join",{roomCode,teamName});
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/teams/join`,{roomCode,teamName});
             }
             
             navigate(`/join/${roomCode}`,{ state: teamName, replace: true });

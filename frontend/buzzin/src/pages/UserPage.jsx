@@ -44,7 +44,7 @@ const UserPage = () => {
 
     try {
       await axios.post(
-        `http://localhost:5001/api/rooms/${roomCode}/update`,
+        `${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/update`,
         { answer, teamName}
       );
       setPressed(true);
@@ -58,7 +58,7 @@ const UserPage = () => {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5001");
+      socketRef.current = io(import.meta.env.VITE_API_URL);
     }
     const socket = socketRef.current;
 
@@ -75,12 +75,12 @@ const UserPage = () => {
 
     const onPlayersUpdated = async () => {
       const res = await axios.get(
-        `http://localhost:5001/api/rooms/${roomCode}`
+        `${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}`
       );
       setPlayers(res.data.playerCount || 0);
 
       const lb = await axios.get(
-        `http://localhost:5001/api/teams/leaderboard/${roomCode}`
+        `${import.meta.env.VITE_API_URL}/leaderboard/${roomCode}`
       );
       setLeaderboard(lb.data);
     };
@@ -93,7 +93,7 @@ const UserPage = () => {
 
     socket.on("updated-scores", async () => {
       if(quizEnded){return;}
-      const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+      const game = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/game`);
 
       setRoundNumber(game.data.roundNumber);
       setQuestionNumber(game.data.questionNumber);
@@ -102,10 +102,10 @@ const UserPage = () => {
       setPressed(false);
       setAnswer("");
 
-      const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
+      const buzzerRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzers`);
       setBuzzersLocked(buzzerRes.data.locked);
 
-      const lb= await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
+      const lb= await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
       setLeaderboard(lb.data);
     });
 
@@ -134,18 +134,18 @@ const UserPage = () => {
   useEffect(() => {
     async function fetchRoomOnce() {
       try {
-        const res = await axios.get(`http://localhost:5001/api/rooms/${roomCode}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}`);
         setQuizTitle(res.data.quiz?.title || "");
         setPlayers(res.data.playerCount || 0);
 
-        const buzzRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzz-status`,{params: {teamName} });
+        const buzzRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzz-status`,{params: {teamName} });
         setPressed(buzzRes.data.alreadyBuzzed);
         if(buzzRes.data.alreadyAnswered){setAnswer(buzzRes.data.submittedAnswer)};
 
-        const lb = await axios.get(`http://localhost:5001/api/teams/leaderboard/${roomCode}`);
+        const lb = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
         setLeaderboard(lb.data);
 
-        const game = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/game`);
+        const game = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/game`);
 
         if(game.data.status === "ended"){
           setQuizEnded(true);
@@ -161,7 +161,7 @@ const UserPage = () => {
           setRoundType(game.data.roundType);
         }
 
-        const buzzerRes = await axios.get(`http://localhost:5001/api/rooms/${roomCode}/buzzers`);
+        const buzzerRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzers`);
         setBuzzersLocked(buzzerRes.data.locked);
         
       } catch {

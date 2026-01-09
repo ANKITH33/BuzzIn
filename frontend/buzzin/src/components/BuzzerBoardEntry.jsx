@@ -32,7 +32,7 @@ const BuzzerBoardEntry = ({ name, response, roundType,roomCode }) => {
 
   const handleEvaluate = async (evaluation) => {
     try {
-      await axios.post(`http://localhost:5001/api/rooms/${roomCode}/evaluation`,{teamName:name,evaluation});
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/evaluation`,{teamName:name,evaluation});
     } catch (err) {
       console.error("Evaluation failed", err);
       toast.error(err.response?.data?.error || "Failed to evaluate");

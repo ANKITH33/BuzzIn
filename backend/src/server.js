@@ -20,7 +20,10 @@ const PORT=process.env.PORT || 5001;
 
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: [
+        "http://localhost:5173",
+        "https://buzzin.vercel.app" ,
+    ],
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
@@ -38,7 +41,12 @@ connectDB().then(()=>{
     const server = http.createServer(app);//creates a raw HTTP server
 
     const io = new Server(server, { //io is Socket.IO instance
-        cors: { origin: "http://localhost:5173" }
+        cors: { origin: [
+            "http://localhost:5173",
+            "https://buzzin.vercel.app", 
+        ],
+        methods: ["GET", "POST"]
+        }
     });//Socket.IO attaches itself to the existing HTTP server and listens for socket connections coming to that server.
 
     io.on("connection", (socket) => { //Whenever any browser connects using Socket.IO, run this function

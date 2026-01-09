@@ -47,7 +47,7 @@ const QuizRounds = ({roomCode, quizTitle}) => {
                 rounds: Object.values(roundConfigs)
             }
 
-            await axios.post("http://localhost:5001/api/quizzes",payload);
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/quizzes`,payload);
             console.log("Quiz created");
             navigate(`/host/${roomCode}`,{ replace: true });
 

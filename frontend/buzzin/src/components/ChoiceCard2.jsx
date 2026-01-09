@@ -21,7 +21,7 @@ const ChoiceCard2 = () => {
 
         try {
             const { data } = await axios.post(
-            "http://localhost:5001/api/rooms",
+            `${import.meta.env.VITE_API_URL}/api/rooms`,
             { quizTitle }
             );
 

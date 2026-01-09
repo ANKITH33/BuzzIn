@@ -6,7 +6,7 @@ const InfoBoxHost = ({quizTitle, roomCode, roundNumber, roundType, questionNumbe
   const handleChange = async (e) =>{
     const locked = e.target.checked;
     setBuzzerLocked(locked);
-    await axios.post(`http://localhost:5001/api/rooms/${roomCode}/buzzers`,{locked});
+    await axios.post(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzers`,{locked});
     return;
   }
   
