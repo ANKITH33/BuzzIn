@@ -18,12 +18,7 @@ dotenv.config();//helps read the env file
 const app = express();
 const PORT=process.env.PORT || 5001;
 
-app.use((req, res, next) => {
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-  next();
-});
+app.set("trust proxy", 1);
 
 
 app.use(cors({
@@ -32,7 +27,7 @@ app.use(cors({
     "https://buzzin-xi.vercel.app"
   ],
   methods: ["GET", "POST","OPTIONS"],
-  credentials: true
+  credentials: false
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
@@ -57,7 +52,7 @@ connectDB().then(()=>{
         "https://buzzin-xi.vercel.app"
         ],
         methods: ["GET", "POST"],
-        credentials: true
+        credentials: false
     }
     });//Socket.IO attaches itself to the existing HTTP server and listens for socket connections coming to that server.
 
