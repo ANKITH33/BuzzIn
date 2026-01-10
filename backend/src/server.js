@@ -22,8 +22,10 @@ const PORT=process.env.PORT || 5001;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://buzzin-xi.vercel.app"
+    "https://buzz-in-six.vercel.app"
   ],
+  
+  methods: ["GET", "POST", "OPTIONS"],
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
@@ -45,7 +47,7 @@ connectDB().then(()=>{
     cors: {
         origin: [
         "http://localhost:5173",
-        "https://buzzin-xi.vercel.app"
+        "https://buzz-in-six.vercel.app"
         ],
         methods: ["GET", "POST"],
     }
