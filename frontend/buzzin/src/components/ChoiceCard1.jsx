@@ -30,7 +30,7 @@ const ChoiceCard1 = () => {
             else{
                 await axios.post(`${import.meta.env.VITE_API_URL}/api/teams/join`,{roomCode,teamName});
             }
-            
+            localStorage.setItem("teamName", teamName);
             navigate(`/join/${roomCode}`,{ state: teamName, replace: true });
         } catch (err) {
             const status = err.response?.status;

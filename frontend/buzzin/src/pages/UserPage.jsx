@@ -27,6 +27,11 @@ const UserPage = () => {
   const [pressed,setPressed] = useState(false);
 
   const teamName = location.state || localStorage.getItem("teamName");
+  useEffect(() => {
+  if (!teamName) {
+    navigate("/", { replace: true });
+  }
+}, [teamName, navigate]);
 
   const [leaderboard, setLeaderboard] = useState([]);
   const socketRef = useRef(null);
