@@ -22,7 +22,8 @@ const PORT=process.env.PORT || 5001;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://buzz-in-six.vercel.app"
+    "https://buzz-in-six.vercel.app",
+    "https://buzz-difv6uqhd-ankith33s-projects.vercel.app",
   ],
   
   methods: ["GET", "POST", "OPTIONS"],
@@ -47,7 +48,8 @@ connectDB().then(()=>{
     cors: {
         origin: [
         "http://localhost:5173",
-        "https://buzz-in-six.vercel.app"
+        "https://buzz-in-six.vercel.app",
+        "https://buzz-difv6uqhd-ankith33s-projects.vercel.app",
         ],
         methods: ["GET", "POST"],
     }
