@@ -18,16 +18,12 @@ dotenv.config();//helps read the env file
 const app = express();
 const PORT=process.env.PORT || 5001;
 
-app.set("trust proxy", 1);
-
 
 app.use(cors({
   origin: [
     "http://localhost:5173",
     "https://buzzin-xi.vercel.app"
   ],
-  methods: ["GET", "POST","OPTIONS"],
-  credentials: false
 }));
 app.use(express.json());// this middleware will parse json bodies : req.body
 
@@ -52,7 +48,6 @@ connectDB().then(()=>{
         "https://buzzin-xi.vercel.app"
         ],
         methods: ["GET", "POST"],
-        credentials: false
     }
     });//Socket.IO attaches itself to the existing HTTP server and listens for socket connections coming to that server.
 
@@ -83,6 +78,6 @@ connectDB().then(()=>{
     app.set("io", io);//Store this value inside the Express app under this key.
 
     server.listen(PORT, () => {
-        console.log("Server running on port 5001");
+        console.log(`Server running on port ${PORT}`);
     });
 })//programming practice we need to connect to db first
