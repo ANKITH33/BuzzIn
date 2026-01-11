@@ -9,7 +9,7 @@ const Leaderboard = ({teams=[]}) => {
           Leaderboard
         </h1>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col">
           {teams.map((team, i) => (
             <LeaderBoardEntry
               key={team._id}
