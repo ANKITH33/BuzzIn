@@ -45,13 +45,13 @@ const UserPage = () => {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   const handleSubmit = async () => {
     if (pressed || buzzerLocked) return;
+    setPressed(true);
 
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/update`,
         { answer, teamName}
       );
-      setPressed(true);
     } catch (err) {
       console.log(err.response?.data);
       setPressed(false);
