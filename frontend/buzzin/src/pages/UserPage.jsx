@@ -85,7 +85,7 @@ const UserPage = () => {
       setPlayers(res.data.playerCount || 0);
 
       const lb = await axios.get(
-        `${import.meta.env.VITE_API_URL}/leaderboard/${roomCode}`
+        `${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`
       );
       setLeaderboard(lb.data);
     };

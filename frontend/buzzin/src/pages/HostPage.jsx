@@ -68,7 +68,8 @@ const HostPage = () => {
 
     socket.on("players-updated", onPlayersUpdated);//listens for emit from backend
 
-    const onResponseUpdated = async () => {
+    const onResponseUpdated = async ({teamName}) => {
+      setBuzzedTeams(prev => prev.includes(teamName) ? prev : [...prev, teamName]);
       const responsesData =  await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzerboard`);
       setResponses(responsesData.data.submittedAnswers);
       setBuzzedTeams(responsesData.data.buzzedTeams);
