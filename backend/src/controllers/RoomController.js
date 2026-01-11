@@ -220,7 +220,7 @@ export async function updateResponses (req,res){
     }
 
     const io = req.app.get("io");
-    io.to(roomCode).emit("response-updated");
+    io.to(roomCode).emit("response-updated",{teamName,});
 
     return res.status(200).json({ success: true });
 }
@@ -559,9 +559,11 @@ export async function updateScores (req,res){
 
         await session.commitTransaction();
         session.endSession();
-        req.app.get("leaderboardCache").delete(room.quiz.toString());
 
-        io.to(roomCode).emit("updated-scores");
+        const teams = await Team.find({ quiz: room.quiz }).sort({ totalScore: -1 }).select("teamName totalScore").lean();
+        req.app.get("leaderboardCache").set(room.quiz.toString(), teams);
+
+        io.to(roomCode).emit("updated-scores",teams);
 
         return res.status(200).json({ success: true });
 
