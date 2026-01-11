@@ -97,7 +97,7 @@ export async function getRoomByCode(req, res) {
     }
     }
 
-  return res.json({...room.toObject(),playerCount});//converts Mongoose document to js object and adds a field
+  return res.json({...room,playerCount});//converts Mongoose document to js object and adds a field
 }
 
 
