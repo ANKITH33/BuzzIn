@@ -14,6 +14,9 @@ import {connectDB} from "./config/db.js";
 import rateLimiter from "./middleware/rateLimiter.js";
 import Team from "./models/Team.js";
 
+const leaderboardCache = new Map();
+const playersCache = new Map();
+
 dotenv.config();//helps read the env file
 const app = express();
 const PORT=process.env.PORT || 5001;
@@ -35,6 +38,8 @@ app.use((req,res,next) => {
     next();
 })
 
+app.set("leaderboardCache", leaderboardCache);
+app.set("playersCache", playersCache);
 
 app.use("/api/rooms", roomRoutes);
 app.use("/api/quizzes", quizRoutes);
@@ -72,9 +77,14 @@ connectDB().then(()=>{
             }
 
             const team= await Team.findOneAndUpdate({quiz: room.quiz, teamName: teamName},{isActive:false});
+            leaderboardCache.delete(room.quiz.toString());
+            playersCache.delete(room.quiz.toString());
 
             io.to(roomCode).emit("players-updated");
-            io.to(roomCode).emit("leaderboard-updated");
+            if (!socket.handshake.leaderboardEmitted) {
+                io.to(roomCode).emit("leaderboard-updated");
+                socket.handshake.leaderboardEmitted = true;
+            }
 
         })
     });

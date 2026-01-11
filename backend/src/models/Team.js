@@ -28,5 +28,6 @@ const teamSchema = new mongoose.Schema(
 
 // team names must be unique per quiz, it also allows teams to join again
 teamSchema.index({ quiz: 1, teamName: 1 }, { unique: true, partialFilterExpression: { isActive: true }, });
+teamSchema.index({ quiz: 1, isActive: 1, totalScore: -1 })
 
 export default mongoose.model("Team", teamSchema);

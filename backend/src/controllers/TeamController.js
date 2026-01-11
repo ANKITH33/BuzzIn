@@ -5,7 +5,7 @@ import Room from "../models/Room.js";
 export async function joinTeam(req, res) {
   const {roomCode,teamName}=req.body;
 
-  const room= await Room.findOne({code: roomCode}).select("quiz");
+  const room= await Room.findOne({code: roomCode}).select("quiz").lean();
   if (!room || !room.quiz) {
     return res.status(400).json({ error: "Invalid room" });
   }
@@ -19,6 +19,9 @@ export async function joinTeam(req, res) {
   try {
     const team = await Team.create({ teamName, quiz: room.quiz });
     const io = req.app.get("io");
+
+    req.app.get("leaderboardCache").delete(room.quiz.toString());
+    req.app.get("playersCache").delete(room.quiz.toString());
 
     io.to(roomCode).emit("players-updated");
     io.to(roomCode).emit("leaderboard-updated");
@@ -44,18 +47,22 @@ export async function getLeaderboard(req, res) {
     return res.status(400).json({ error: "Quiz not started yet" });
   }
 
-  const teams = await Team.find({ quiz: room.quiz })
-    .sort({ totalScore: -1 })
-    .select("teamName totalScore");
+  const cacheKey = room.quiz.toString();
+  const cached = req.app.get("leaderboardCache")?.get(cacheKey);
+  if(cached){return res.json(cached);}
 
+  const teams = await Team.find({ quiz: room.quiz }).sort({ totalScore: -1 }).select("teamName totalScore").lean();
+
+  req.app.get("leaderboardCache").set(cacheKey, teams);
   res.json(teams);
+
 }
 
 
 export async function rejoinTeam (req,res){
   const {roomCode,teamName}=req.body;
 
-  const room= await Room.findOne({code: roomCode}).select("quiz");
+  const room= await Room.findOne({code: roomCode}).select("quiz").lean();
   if (!room || !room.quiz) {
     return res.status(400).json({ error: "Invalid room" });
   }
@@ -65,12 +72,15 @@ export async function rejoinTeam (req,res){
     return res.status(409).json({error: "Team is already in the room"});
   }
 
-  const existingInactive= await Team.findOne({quiz:room.quiz, teamName, isActive:false});
+  const existingInactive = await Team.findOne({quiz: room.quiz,teamName, isActive:false});
   if(existingInactive){
     existingInactive.isActive=true;
     await existingInactive.save();
 
     const io = req.app.get("io");
+
+    req.app.get("leaderboardCache").delete(room.quiz.toString());
+    req.app.get("playersCache").delete(room.quiz.toString());
 
     io.to(roomCode).emit("players-updated");
     io.to(roomCode).emit("leaderboard-updated");

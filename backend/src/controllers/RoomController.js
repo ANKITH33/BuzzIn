@@ -77,13 +77,25 @@ export async function getRoomByCode(req, res) {
 
   const room = await Room.findOne({ code: roomCode })
     .populate("quiz","title")
-    .select("code status quiz");//selects fields from json
+    .select("code status quiz").lean();//selects fields from json
 
   if (!room) {
     return res.status(404).json({ error: "Room not found" });
   }
 
-  const playerCount = room.quiz ? await Team.countDocuments({quiz:room.quiz}):0;
+  const cacheKey = room.quiz?.toString();
+  let playerCount = 0;
+  
+  if (cacheKey) {
+    const cached = req.app.get("playersCache").get(cacheKey);
+    if (cached !== undefined) {
+        playerCount = cached;
+    }
+    else{
+        playerCount = await Team.countDocuments({ quiz: room.quiz });
+        req.app.get("playersCache").set(cacheKey, playerCount);
+    }
+    }
 
   return res.json({...room.toObject(),playerCount});//converts Mongoose document to js object and adds a field
 }
@@ -94,7 +106,7 @@ export async function getRoomByCode(req, res) {
 export async function getCurrentGameInfo (req,res){
     const {roomCode} = req.params;
 
-    const room = await Room.findOne({code: roomCode});
+    const room = await Room.findOne({code: roomCode}).lean();
     if (!room) {
         return res.status(404).json({ error: "Room not found" });
     }
@@ -124,7 +136,7 @@ export async function toggleBuzzers (req,res){
     const {roomCode} = req.params;
     const {locked} = req.body;
 
-    const room = await Room.findOne({code: roomCode});
+    const room = await Room.findOne({code: roomCode}).lean();
 
     if(!room){
         return res.status(404).json({error: "Room not found"});
@@ -150,7 +162,7 @@ export async function toggleBuzzers (req,res){
 export async function getBuzzerState (req,res){
     const {roomCode} = req.params;
     
-    const room = await Room.findOne({code: roomCode});
+    const room = await Room.findOne({code: roomCode}).lean();
     if(!room){
         return res.status(404).json({error : "Room not found"});
     }
@@ -547,6 +559,7 @@ export async function updateScores (req,res){
 
         await session.commitTransaction();
         session.endSession();
+        req.app.get("leaderboardCache").delete(room.quiz.toString());
 
         io.to(roomCode).emit("updated-scores");
 

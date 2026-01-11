@@ -20,5 +20,5 @@ const roomSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+roomSchema.index({ code: 1 });
 export default mongoose.model("Room", roomSchema);
