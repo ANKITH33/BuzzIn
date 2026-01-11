@@ -65,6 +65,7 @@ connectDB().then(()=>{
             socket.join(roomCode);//Adds THIS socket to an internal group named roomCode, all users in the room share a connection
             socket.teamName=teamName;
             socket.roomCode= roomCode;
+            io.to(roomCode).emit("players-updated");
         });
 
         socket.on("disconnect", async () =>{
@@ -81,10 +82,7 @@ connectDB().then(()=>{
             playersCache.delete(room.quiz.toString());
 
             io.to(roomCode).emit("players-updated");
-            if (!socket.handshake.leaderboardEmitted) {
-                io.to(roomCode).emit("leaderboard-updated");
-                socket.handshake.leaderboardEmitted = true;
-            }
+            io.to(roomCode).emit("leaderboard-updated");
 
         })
     });
