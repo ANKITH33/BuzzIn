@@ -193,9 +193,9 @@ const UserPage = () => {
       />
 
       {quizEnded && (
-        <div className="mx-6 my-6 rounded-xl bg-gradient-bl from-slate-900 to-slate-600 p-6 text-center">
+        <div className="mx-3 sm:mx-6 my-6 rounded-xl bg-gradient-bl from-slate-900 to-slate-600 p-4 sm:p-6 text-center">
           <h1 className="text-4xl font-bold text-green-400 text-center">
-            End of {quizTitle}
+            End of Quiz
           </h1>
 
           <p className="text-slate-300 mt-2 mb-4 text-2xl">
