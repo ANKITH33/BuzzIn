@@ -44,8 +44,8 @@ const UserPage = () => {
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   const handleSubmit = async () => {
-    if (pressed) return;
-    if (buzzerLocked) return;
+    if (pressed || buzzerLocked) return;
+    setPressed(true);
 
     try {
       await axios.post(
@@ -55,6 +55,7 @@ const UserPage = () => {
       setPressed(true);
     } catch (err) {
       console.log(err.response?.data);
+      setPressed(false);
       toast.error(err.response?.data?.error || "Answer not sent");
     }
   }
@@ -96,8 +97,12 @@ const UserPage = () => {
       setAnswer("");
     })
 
-    socket.on("updated-scores", async () => {
+    socket.on("updated-scores", async (teams) => {
       if(quizEnded){return;}
+
+      if(Array.isArray(teams)){
+        setLeaderboard(teams);
+      }
       const game = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/game`);
 
       setRoundNumber(game.data.roundNumber);
@@ -110,8 +115,8 @@ const UserPage = () => {
       const buzzerRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzers`);
       setBuzzersLocked(buzzerRes.data.locked);
 
-      const lb= await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
-      setLeaderboard(lb.data);
+      // const lb= await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
+      // setLeaderboard(lb.data);
     });
 
     socket.on("endof-quiz", async () =>{
@@ -195,9 +200,7 @@ const UserPage = () => {
       {quizEnded && (
         <div className="mx-6 my-6 rounded-xl bg-gradient-bl from-slate-900 to-slate-600 p-6 text-center">
           <h1 className="text-4xl font-bold text-green-400 text-center">
-            <span className="mr-2">🎉</span>
-            End of {quizTitle} 
-            <span className="ml-2">🎉</span>
+            End of {quizTitle}
           </h1>
 
           <p className="text-slate-300 mt-2 mb-4 text-2xl">

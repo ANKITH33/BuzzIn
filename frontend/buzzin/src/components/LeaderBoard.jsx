@@ -3,7 +3,7 @@ import LeaderBoardEntry from './LeaderBoardEntry';
 
 const Leaderboard = ({teams=[]}) => {
   return (
-    <div className="bg-yellow-500 opacity-90 rounded-xl w-full p-4 pl-2 pr-2">
+    <div className="bg-yellow-500 opacity-90 rounded-xl w-full p-3 sm:p-4">
         <h1 className="text-slate-800 font-medium text-2xl ml-6 mb-5"> Leaderboard</h1>
         
 
