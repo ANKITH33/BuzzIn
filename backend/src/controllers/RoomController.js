@@ -83,7 +83,7 @@ export async function getRoomByCode(req, res) {
     return res.status(404).json({ error: "Room not found" });
   }
 
-  const cacheKey = room.quiz?.toString();
+  const cacheKey = room.quiz?._id.toString();
   let playerCount = 0;
   
   if (cacheKey) {
@@ -402,6 +402,11 @@ export async function updateScores (req,res){
     gameState.questionProcessed=true;
 
     try{
+        const teamsMap = new Map(
+        (await Team.find({ quiz: room.quiz }).session(session))
+            .map(t => [t._id.toString(), t])
+        );
+
         for(const entry of gameState.submittedAnswers){
             const teamID = entry.team.toString();
             if(!gameState.evaluations.has(teamID)){
@@ -436,7 +441,7 @@ export async function updateScores (req,res){
             const teamID=entry.team.toString();
             const evaluation=gameState.evaluations.get(teamID);
 
-            const team=await Team.findById(entry.team).session(session);
+            const team = teamsMap.get(teamID);
             if(!team){
                 throw new Error("Team not found");
             }
@@ -529,8 +534,10 @@ export async function updateScores (req,res){
                     throw new Error("Invalid evalaution");
                 }
             }
+        }
 
-            await team.save({session});
+        for(const team of teamsMap.values()){
+            await team.save({ session });
         }
 
         //update GameState
