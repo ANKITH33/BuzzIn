@@ -45,7 +45,6 @@ const UserPage = () => {
   /////////////////////////////////////////////////////////////////////////////////////////////////
   const handleSubmit = async () => {
     if (pressed || buzzerLocked) return;
-    setPressed(true);
 
     try {
       await axios.post(
@@ -97,12 +96,8 @@ const UserPage = () => {
       setAnswer("");
     })
 
-    socket.on("updated-scores", async (teams) => {
+    socket.on("updated-scores", async () => {
       if(quizEnded){return;}
-
-      if(Array.isArray(teams)){
-        setLeaderboard(teams);
-      }
       const game = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/game`);
 
       setRoundNumber(game.data.roundNumber);
@@ -115,8 +110,8 @@ const UserPage = () => {
       const buzzerRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzers`);
       setBuzzersLocked(buzzerRes.data.locked);
 
-      // const lb= await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
-      // setLeaderboard(lb.data);
+      const lb= await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
+      setLeaderboard(lb.data);
     });
 
     socket.on("endof-quiz", async () =>{

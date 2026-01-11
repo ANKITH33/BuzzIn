@@ -60,25 +60,24 @@ const HostPage = () => {
       );
       setPlayers(res.data.playerCount || 0);
 
-      // const lb = await axios.get(
-      //   `${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`
-      // );
-      // setLeaderboard(lb.data);
+      const lb = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`
+      );
+      setLeaderboard(lb.data);
     };
 
     socket.on("players-updated", onPlayersUpdated);//listens for emit from backend
 
-    const onResponseUpdated = async ({teamName}) => {
-      setBuzzedTeams(prev => [...prev, teamName]);
+    const onResponseUpdated = async () => {
+      const responsesData =  await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/buzzerboard`);
+      setResponses(responsesData.data.submittedAnswers);
+      setBuzzedTeams(responsesData.data.buzzedTeams);
     }
 
     socket.on("response-updated", onResponseUpdated);
 
-    const onScoresUpdated = async (teams) => {
+    const onScoresUpdated = async () => {
       if(quizEnded){return;}
-      if(Array.isArray(teams)){
-        setLeaderboard(teams);
-      }
       const game = await axios.get(`${import.meta.env.VITE_API_URL}/api/rooms/${roomCode}/game`);
       if(game.data.status =="ended"){
         setQuizEnded(true);
@@ -92,8 +91,8 @@ const HostPage = () => {
       setQuestionNumber(game.data.questionNumber);
       setRoundType(game.data.roundType);
 
-      // const lb = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
-      // setLeaderboard(lb.data);
+      const lb = await axios.get(`${import.meta.env.VITE_API_URL}/api/teams/leaderboard/${roomCode}`);
+      setLeaderboard(lb.data);
 
       setResponses([]);
       setBuzzedTeams([]);
